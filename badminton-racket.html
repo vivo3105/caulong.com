@@ -766,47 +766,63 @@
     <div class="perf-card">
       <div class="radar-wrap">
 
-        <svg width="220" height="220" viewBox="0 0 220 220">
-          <!-- Background rings -->
-          <polygon points="110,30 182,72 182,148 110,190 38,148 38,72" fill="none" stroke="#c8d0e0" stroke-width="1"/>
-          <polygon points="110,52 166,84 166,136 110,168 54,136 54,84"  fill="none" stroke="#c8d0e0" stroke-width="1"/>
-          <polygon points="110,74 150,96 150,124 110,146 70,124 70,96"  fill="none" stroke="#c8d0e0" stroke-width="1"/>
-          <polygon points="110,96 134,108 134,112 110,124 86,112 86,108" fill="none" stroke="#c8d0e0" stroke-width="1"/>
+        <svg width="320" height="290" viewBox="0 0 320 290">
+          <!-- Center: 160,150  Outer radius: 95px -->
+          <!-- Hexagon vertices: top, top-right, bot-right, bottom, bot-left, top-left -->
+          <!-- top:       160, 55  -->
+          <!-- top-right: 160+82.3, 150-47.5 = 242,103  -->
+          <!-- bot-right: 242, 197  -->
+          <!-- bottom:    160, 245  -->
+          <!-- bot-left:  78, 197   -->
+          <!-- top-left:  78, 103   -->
+
+          <!-- Background rings 100% -->
+          <polygon points="160,55 242,103 242,197 160,245 78,197 78,103" fill="none" stroke="#c8d0e0" stroke-width="1"/>
+          <!-- 75% -->
+          <polygon points="160,84 221,128 221,172 160,218 99,172 99,128" fill="none" stroke="#c8d0e0" stroke-width="1"/>
+          <!-- 50% -->
+          <polygon points="160,103 201,127 201,173 160,198 119,173 119,127" fill="none" stroke="#c8d0e0" stroke-width="1" opacity=".7"/>
+          <!-- 25% -->
+          <polygon points="160,126 181,138 181,162 160,174 139,162 139,138" fill="none" stroke="#c8d0e0" stroke-width="1" opacity=".5"/>
+
           <!-- Axis lines -->
-          <line x1="110" y1="110" x2="110" y2="30"  stroke="#c8d0e0" stroke-width="1"/>
-          <line x1="110" y1="110" x2="182" y2="72"  stroke="#c8d0e0" stroke-width="1"/>
-          <line x1="110" y1="110" x2="182" y2="148" stroke="#c8d0e0" stroke-width="1"/>
-          <line x1="110" y1="110" x2="110" y2="190" stroke="#c8d0e0" stroke-width="1"/>
-          <line x1="110" y1="110" x2="38"  y2="148" stroke="#c8d0e0" stroke-width="1"/>
-          <line x1="110" y1="110" x2="38"  y2="72"  stroke="#c8d0e0" stroke-width="1"/>
-          <!-- Data polygon (Power=90,Speed=72,Control=82,Repulsion=88,Defense=75,Mobility=65) -->
-          <!-- Scaled: each axis 0-100 maps to 80px from center (110,110) -->
-          <!-- Power (top):      110, 110-72=38  -->
-          <!-- Speed (top-right):110+57.6*0.72=151, 110-33.3*0.72=86 → 152,86 approx -->
-          <!-- Repulsion (bot-right): 110+57.6*0.88=161, 110+38*0.88=143 → 161,143 -->
-          <!-- Defense (bottom): 110, 110+80*0.75=170 -->
-          <!-- Mobility (bot-left): 110-57.6*0.65=73, 110+38*0.65=135 → 73,135 -->
-          <!-- Control (top-left): 110-57.6*0.82=63, 110-33.3*0.82=83 → 63,83 -->
+          <line x1="160" y1="150" x2="160" y2="55"  stroke="#c8d0e0" stroke-width="1"/>
+          <line x1="160" y1="150" x2="242" y2="103" stroke="#c8d0e0" stroke-width="1"/>
+          <line x1="160" y1="150" x2="242" y2="197" stroke="#c8d0e0" stroke-width="1"/>
+          <line x1="160" y1="150" x2="160" y2="245" stroke="#c8d0e0" stroke-width="1"/>
+          <line x1="160" y1="150" x2="78"  y2="197" stroke="#c8d0e0" stroke-width="1"/>
+          <line x1="160" y1="150" x2="78"  y2="103" stroke="#c8d0e0" stroke-width="1"/>
+
+          <!-- Data polygon
+               Power 9.0:      160, 150-95*0.90 = 160,64.5
+               Speed 7.2:      160+82.3*0.72, 150-47.5*0.72 = 219,116
+               Repulsion 8.8:  160+82.3*0.88, 150+47.5*0.88 = 232,192
+               Defense 7.5:    160, 150+95*0.75 = 160,221
+               Mobility 6.5:   160-82.3*0.65, 150+47.5*0.65 = 107,181
+               Control 8.2:    160-82.3*0.82, 150-47.5*0.82 = 92,111
+          -->
           <polygon
-            points="110,38 152,86 161,143 110,170 73,135 63,83"
+            points="160,65 219,116 232,192 160,221 107,181 92,111"
             fill="rgba(230,134,10,0.15)"
             stroke="#e6860a"
             stroke-width="2"
           />
+
           <!-- Axis labels -->
-          <text x="110" y="22" text-anchor="middle" fill="#1a2035" font-size="11" font-family="Segoe UI,sans-serif" font-weight="600">Sức Mạnh</text>
-          <text x="196" y="68" text-anchor="start"  fill="#1a2035" font-size="11" font-family="Segoe UI,sans-serif" font-weight="600">Tốc Độ</text>
-          <text x="196" y="155" text-anchor="start" fill="#1a2035" font-size="11" font-family="Segoe UI,sans-serif" font-weight="600">Độ Bật</text>
-          <text x="110" y="206" text-anchor="middle" fill="#1a2035" font-size="11" font-family="Segoe UI,sans-serif" font-weight="600">Phòng Thủ</text>
-          <text x="24"  y="155" text-anchor="end"   fill="#1a2035" font-size="11" font-family="Segoe UI,sans-serif" font-weight="600">Di Động</text>
-          <text x="24"  y="68"  text-anchor="end"   fill="#1a2035" font-size="11" font-family="Segoe UI,sans-serif" font-weight="600">Kiểm Soát</text>
+          <text x="160" y="42"  text-anchor="middle" fill="#1a2035" font-size="12" font-family="Segoe UI,sans-serif" font-weight="700">Sức Mạnh</text>
+          <text x="252" y="100" text-anchor="start"  fill="#1a2035" font-size="12" font-family="Segoe UI,sans-serif" font-weight="700">Tốc Độ</text>
+          <text x="252" y="202" text-anchor="start"  fill="#1a2035" font-size="12" font-family="Segoe UI,sans-serif" font-weight="700">Độ Bật</text>
+          <text x="160" y="262" text-anchor="middle" fill="#1a2035" font-size="12" font-family="Segoe UI,sans-serif" font-weight="700">Phòng Thủ</text>
+          <text x="68"  y="202" text-anchor="end"    fill="#1a2035" font-size="12" font-family="Segoe UI,sans-serif" font-weight="700">Di Động</text>
+          <text x="68"  y="100" text-anchor="end"    fill="#1a2035" font-size="12" font-family="Segoe UI,sans-serif" font-weight="700">Kiểm Soát</text>
+
           <!-- Data points -->
-          <circle cx="110" cy="38"  r="4" fill="#f5a623"/>
-          <circle cx="152" cy="86"  r="4" fill="#f5a623"/>
-          <circle cx="161" cy="143" r="4" fill="#f5a623"/>
-          <circle cx="110" cy="170" r="4" fill="#f5a623"/>
-          <circle cx="73"  cy="135" r="4" fill="#f5a623"/>
-          <circle cx="63"  cy="83"  r="4" fill="#f5a623"/>
+          <circle cx="160" cy="65"  r="4" fill="#e6860a"/>
+          <circle cx="219" cy="116" r="4" fill="#e6860a"/>
+          <circle cx="232" cy="192" r="4" fill="#e6860a"/>
+          <circle cx="160" cy="221" r="4" fill="#e6860a"/>
+          <circle cx="107" cy="181" r="4" fill="#e6860a"/>
+          <circle cx="92"  cy="111" r="4" fill="#e6860a"/>
         </svg>
 
         <div class="radar-labels">
