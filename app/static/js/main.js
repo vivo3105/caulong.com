@@ -93,11 +93,12 @@ document.addEventListener('DOMContentLoaded', function () {
             }).join('');
 
             html += '<a href="/search?q=' + encodeURIComponent(q) + '"' +
-                ' class="flex items-center gap-2 px-4 py-2.5 text-sm text-green-600 dark:text-green-400 font-semibold' +
-                ' hover:bg-green-50 dark:hover:bg-green-900/20 border-t border-gray-100 dark:border-gray-700 transition-colors">' +
-                '<svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
-                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>' +
-                'Xem tất cả kết quả cho "<strong>' + esc(q) + '</strong>"</a>';
+                ' class="flex items-center justify-between gap-2 px-4 py-2.5 border-t border-gray-100 dark:border-gray-700' +
+                ' hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors group">' +
+                '<span class="text-sm text-green-600 dark:text-green-400 font-semibold truncate">Xem tất cả "<span class="italic">' + esc(q) + '</span>"</span>' +
+                '<svg class="w-4 h-4 flex-shrink-0 text-green-600 dark:text-green-400 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>' +
+                '</a>';
 
             searchResults.innerHTML = html;
             searchResults.classList.remove('hidden');
