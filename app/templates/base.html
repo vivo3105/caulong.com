@@ -37,7 +37,7 @@
         }
     </script>
     <style>
-        /* Nav link with animated underline */
+        /* Nav link — animated underline */
         .nav-link {
             @apply relative text-gray-700 dark:text-gray-300 font-medium transition-colors duration-200;
             padding-bottom: 2px;
@@ -59,73 +59,6 @@
         html.dark .nav-link.active { color: #4ade80; }
         html.dark .nav-link::after { background: #4ade80; }
 
-        /* Dropdown */
-        .nav-dropdown { position: relative; }
-        .nav-dropdown-menu {
-            display: none;
-            position: absolute;
-            top: calc(100% + 10px); left: 50%;
-            transform: translateX(-50%);
-            min-width: 220px;
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,.12);
-            padding: 8px;
-            z-index: 100;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity .2s, transform .2s;
-            transform: translateX(-50%) translateY(-6px);
-        }
-        html.dark .nav-dropdown-menu {
-            background: #1f2937;
-            border-color: #374151;
-            box-shadow: 0 10px 40px rgba(0,0,0,.4);
-        }
-        /* Arrow */
-        .nav-dropdown-menu::before {
-            content: '';
-            position: absolute;
-            top: -6px; left: 50%;
-            transform: translateX(-50%);
-            border: 6px solid transparent;
-            border-top: 0;
-            border-bottom-color: #e5e7eb;
-        }
-        html.dark .nav-dropdown-menu::before { border-bottom-color: #374151; }
-        .nav-dropdown-menu::after {
-            content: '';
-            position: absolute;
-            top: -5px; left: 50%;
-            transform: translateX(-50%);
-            border: 6px solid transparent;
-            border-top: 0;
-            border-bottom-color: white;
-        }
-        html.dark .nav-dropdown-menu::after { border-bottom-color: #1f2937; }
-
-        .nav-dropdown:hover .nav-dropdown-menu {
-            display: block;
-            opacity: 1;
-            pointer-events: auto;
-            transform: translateX(-50%) translateY(0);
-        }
-        .dropdown-item {
-            display: flex; align-items: center; gap: 8px;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 14px;
-            color: #374151;
-            text-decoration: none;
-            transition: background .15s, color .15s;
-        }
-        html.dark .dropdown-item { color: #d1d5db; }
-        .dropdown-item:hover { background: #f0fdf4; color: #16a34a; }
-        html.dark .dropdown-item:hover { background: #14532d; color: #4ade80; }
-        .dropdown-divider { height: 1px; background: #e5e7eb; margin: 4px 0; }
-        html.dark .dropdown-divider { background: #374151; }
-
         /* Glassmorphism nav on scroll */
         nav.scrolled {
             background: rgba(255,255,255,0.85) !important;
@@ -137,9 +70,6 @@
             background: rgba(17,24,39,0.85) !important;
         }
 
-        /* Logo icon hover */
-        .logo-icon { transition: transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s; }
-        .logo-icon:hover { transform: rotate(-8deg) scale(1.12); box-shadow: 0 4px 16px rgba(22,163,74,.35); }
 
         .btn-primary { @apply bg-green-600 hover:bg-green-700 text-white font-semibold px-5 py-2.5 rounded-lg transition-colors duration-200 inline-flex items-center gap-2; }
         .btn-secondary { @apply bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold px-5 py-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 inline-flex items-center gap-2; }
@@ -156,7 +86,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16">
             <!-- Logo -->
-            <a href="{{ url_for('main.index') }}" class="flex items-center gap-2 flex-shrink-0 logo-icon">
+            <a href="{{ url_for('main.index') }}" class="flex items-center gap-2 flex-shrink-0">
                 <div class="w-9 h-9 bg-green-600 rounded-lg flex items-center justify-center shadow-md">
                     <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064"/>
@@ -170,67 +100,12 @@
 
             <!-- Desktop Nav Links -->
             <div class="hidden md:flex items-center gap-7">
-
-                <!-- Vợt Cầu Lông with dropdown -->
-                <div class="nav-dropdown">
-                    <a href="{{ url_for('rackets.list_rackets') }}"
-                       class="nav-link flex items-center gap-1 {{ 'active' if request.blueprint == 'rackets' }}">
-                        Vợt Cầu Lông
-                        <svg class="w-3.5 h-3.5 opacity-50 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
-                        </svg>
-                    </a>
-                    <div class="nav-dropdown-menu">
-                        <a href="{{ url_for('rackets.list_rackets') }}" class="dropdown-item">
-                            <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
-                            Tất Cả Vợt
-                        </a>
-                        <a href="{{ url_for('rackets.list_rackets') }}?skill_level=beginner" class="dropdown-item">
-                            <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                            Người Mới
-                        </a>
-                        <a href="{{ url_for('rackets.list_rackets') }}?skill_level=advanced" class="dropdown-item">
-                            <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                            Nâng Cao
-                        </a>
-                        <a href="{{ url_for('rackets.list_rackets') }}?balance_type=head_heavy" class="dropdown-item">
-                            <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
-                            Nặng Đầu
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="{{ url_for('main.compare') }}" class="dropdown-item">
-                            <svg class="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-                            So Sánh Vợt
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Thương Hiệu with dropdown -->
-                <div class="nav-dropdown">
-                    <a href="{{ url_for('brands.list_brands') }}"
-                       class="nav-link flex items-center gap-1 {{ 'active' if request.blueprint == 'brands' }}">
-                        Thương Hiệu
-                        <svg class="w-3.5 h-3.5 opacity-50 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
-                        </svg>
-                    </a>
-                    <div class="nav-dropdown-menu">
-                        {% for b in nav_brands[:6] %}
-                        <a href="{{ url_for('brands.brand_detail', slug=b.slug) }}" class="dropdown-item">
-                            <span class="w-5 h-5 rounded bg-green-100 dark:bg-green-900 flex items-center justify-center text-[10px] font-bold text-green-700 dark:text-green-300">{{ b.name[0] }}</span>
-                            {{ b.name }}
-                        </a>
-                        {% endfor %}
-                        <div class="dropdown-divider"></div>
-                        <a href="{{ url_for('brands.list_brands') }}" class="dropdown-item text-green-600 dark:text-green-400 font-medium">
-                            Xem tất cả →
-                        </a>
-                    </div>
-                </div>
-
+                <a href="{{ url_for('rackets.list_rackets') }}"
+                   class="nav-link {{ 'active' if request.blueprint == 'rackets' }}">Vợt Cầu Lông</a>
+                <a href="{{ url_for('brands.list_brands') }}"
+                   class="nav-link {{ 'active' if request.blueprint == 'brands' }}">Thương Hiệu</a>
                 <a href="{{ url_for('blog.list_posts') }}"
                    class="nav-link {{ 'active' if request.blueprint == 'blog' }}">Tin Tức</a>
-
                 <a href="{{ url_for('main.compare') }}"
                    class="nav-link {{ 'active' if request.endpoint == 'main.compare' }}">So Sánh</a>
             </div>
