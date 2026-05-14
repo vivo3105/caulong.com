@@ -49,13 +49,24 @@ def save_image(file, subfolder=''):
     if PIL_AVAILABLE:
         try:
             img = Image.open(file)
-            img = img.convert('RGB')
+            has_alpha = img.mode in ('RGBA', 'LA') or (img.mode == 'P' and 'transparency' in img.info)
+            if has_alpha:
+                img = img.convert('RGBA')
+                save_ext = 'png'
+                unique_name = unique_name.rsplit('.', 1)[0] + '.png'
+                filepath = os.path.join(upload_folder, unique_name)
+            else:
+                img = img.convert('RGB')
+                save_ext = ext
             max_width = 800
             if img.width > max_width:
                 ratio = max_width / img.width
                 new_size = (max_width, int(img.height * ratio))
                 img = img.resize(new_size, Image.LANCZOS)
-            img.save(filepath, optimize=True, quality=85)
+            if save_ext == 'png':
+                img.save(filepath, optimize=True)
+            else:
+                img.save(filepath, optimize=True, quality=85)
         except Exception:
             file.seek(0)
             file.save(filepath)
