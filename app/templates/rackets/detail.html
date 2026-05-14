@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ racket.meta_title or racket.name + ' - CầuLong.com' }}{% endblock %}
+{% block title %}{{ racket.meta_title or racket.name + ' - CầuLông.com' }}{% endblock %}
 {% block meta_description %}{{ racket.meta_description or 'Đánh giá chi tiết ' + racket.name + ' từ ' + racket.brand.name + '. Xem thông số kỹ thuật, ưu nhược điểm và giá bán.' }}{% endblock %}
 {% block og_title %}{{ racket.name }} - {{ racket.brand.name }}{% endblock %}
 {% block og_description %}{{ racket.meta_description or 'Đánh giá ' + racket.name }}{% endblock %}
