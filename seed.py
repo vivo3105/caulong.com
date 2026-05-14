@@ -14,19 +14,16 @@ def seed_all():
         db.create_all()
 
         # ── Admin User ──────────────────────────────────────────────────────
-        if not User.query.filter_by(username='admin').first():
-            admin = User(
-                username='admin',
-                email='admin@caulong.com',
-                is_admin=True
-            )
-            admin.set_password('admin123')
+        admin = User.query.filter_by(username='admin').first()
+        if not admin:
+            admin = User(username='admin', email='admin@caulong.com', is_admin=True)
             db.session.add(admin)
-            db.session.flush()
             print('Created admin user.')
         else:
-            admin = User.query.filter_by(username='admin').first()
-            print('Admin user already exists.')
+            print('Admin user already exists — resetting password.')
+        admin.set_password('admin123')
+        admin.is_admin = True
+        db.session.flush()
 
         # ── Brands ──────────────────────────────────────────────────────────
         brands_data = [
