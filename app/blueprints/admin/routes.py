@@ -128,7 +128,8 @@ def racket_add():
             name=name,
             slug=slug,
             brand_id=request.form.get('brand_id', type=int),
-            weight_class=request.form.get('weight_class') or None,
+            weight_class=','.join(request.form.getlist('weight_class')) or None,
+            grip_sizes=','.join(request.form.getlist('grip_sizes')) or None,
             balance_type=request.form.get('balance_type') or None,
             flexibility=request.form.get('flexibility') or None,
             frame_material=request.form.get('frame_material', '').strip() or None,
@@ -191,7 +192,8 @@ def racket_edit(id):
 
         racket.name = name
         racket.brand_id = request.form.get('brand_id', type=int)
-        racket.weight_class = request.form.get('weight_class') or None
+        racket.weight_class = ','.join(request.form.getlist('weight_class')) or None
+        racket.grip_sizes = ','.join(request.form.getlist('grip_sizes')) or None
         racket.balance_type = request.form.get('balance_type') or None
         racket.flexibility = request.form.get('flexibility') or None
         racket.frame_material = request.form.get('frame_material', '').strip() or None
@@ -435,7 +437,7 @@ def upload_image():
 # ── Bulk Import ───────────────────────────────────────────────────────────────
 
 IMPORT_FIELDS = [
-    'name', 'brand', 'weight_class', 'balance_type', 'flexibility',
+    'name', 'brand', 'weight_class', 'grip_sizes', 'balance_type', 'flexibility',
     'frame_material', 'shaft_material', 'skill_level', 'price',
     'string_tension_min', 'string_tension_max', 'length_mm',
     'description', 'pros', 'cons', 'playing_style',
@@ -581,7 +583,7 @@ def bulk_import():
 # ── Export ────────────────────────────────────────────────────────────────────
 
 EXPORT_FIELDS = [
-    'name', 'brand', 'weight_class', 'balance_type', 'flexibility',
+    'name', 'brand', 'weight_class', 'grip_sizes', 'balance_type', 'flexibility',
     'frame_material', 'shaft_material', 'skill_level', 'price',
     'string_tension_min', 'string_tension_max', 'length_mm',
     'description', 'pros', 'cons', 'playing_style',
@@ -594,6 +596,7 @@ def _racket_to_dict(r):
         'name': r.name,
         'brand': r.brand.name,
         'weight_class': r.weight_class or '',
+        'grip_sizes': r.grip_sizes or '',
         'balance_type': r.balance_type or '',
         'flexibility': r.flexibility or '',
         'frame_material': r.frame_material or '',

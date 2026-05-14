@@ -78,7 +78,8 @@ class Racket(db.Model):
     brand_id = db.Column(db.Integer, db.ForeignKey('brands.id'), nullable=False)
 
     # Specifications
-    weight_class = db.Column(db.String(10))  # 3U, 4U, 5U
+    weight_class = db.Column(db.String(50))  # comma-separated: 3U,4U,5U
+    grip_sizes = db.Column(db.String(50))    # comma-separated: G4,G5,G6
     balance_type = db.Column(db.String(20))  # head_heavy, even, head_light
     flexibility = db.Column(db.String(20))   # extra_stiff, stiff, medium, flexible, extra_flexible
     frame_material = db.Column(db.String(200))
@@ -141,8 +142,26 @@ class Racket(db.Model):
         return img
 
     @property
+    def weight_class_list(self):
+        if not self.weight_class:
+            return []
+        return [w.strip() for w in self.weight_class.split(',') if w.strip()]
+
+    @property
     def weight_class_display(self):
-        return self.weight_class or 'N/A'
+        parts = self.weight_class_list
+        return ' / '.join(parts) if parts else 'N/A'
+
+    @property
+    def grip_sizes_list(self):
+        if not self.grip_sizes:
+            return []
+        return [g.strip() for g in self.grip_sizes.split(',') if g.strip()]
+
+    @property
+    def grip_sizes_display(self):
+        parts = self.grip_sizes_list
+        return ' / '.join(parts) if parts else 'N/A'
 
     @property
     def balance_type_display(self):

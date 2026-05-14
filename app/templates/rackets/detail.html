@@ -20,11 +20,18 @@
         <!-- Image Gallery -->
         <div>
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md overflow-hidden mb-4">
-                <div class="h-80 md:h-96 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600" id="main-image-wrap">
+                <div class="h-80 md:h-96 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 relative select-none" id="main-image-wrap">
                     {% if images %}
                     <img id="main-img" src="{{ url_for('main.uploaded_file', filename=images[0].filename) }}"
                         alt="{{ racket.name }}"
-                        class="max-h-full max-w-full object-contain p-6">
+                        class="max-h-full max-w-full object-contain p-6 transition-transform duration-100"
+                        style="cursor: crosshair;">
+                    <!-- Zoom lens -->
+                    <div id="zoom-lens" class="pointer-events-none absolute hidden rounded-full border-2 border-green-500/60 shadow-lg"
+                        style="width:100px;height:100px;background-repeat:no-repeat;box-shadow:0 0 0 2px rgba(22,163,74,.4),0 4px 24px rgba(0,0,0,.18);"></div>
+                    <!-- Zoom result panel -->
+                    <div id="zoom-result" class="pointer-events-none absolute hidden right-0 top-0 rounded-xl border border-gray-200 dark:border-gray-600 shadow-xl overflow-hidden z-20"
+                        style="width:220px;height:220px;background-repeat:no-repeat;background-color:#f9fafb;"></div>
                     {% else %}
                     <div class="flex flex-col items-center text-gray-300 dark:text-gray-500">
                         <svg class="w-24 h-24 mb-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>
@@ -81,7 +88,27 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <p class="text-xs text-gray-500 dark:text-gray-400">Cân Nặng</p>
-                        <p class="font-semibold text-gray-900 dark:text-white">{{ racket.weight_class_display }}</p>
+                        {% if racket.weight_class_list %}
+                        <div class="flex flex-wrap gap-1 mt-0.5">
+                            {% for wc in racket.weight_class_list %}
+                            <span class="px-2 py-0.5 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-xs font-semibold rounded">{{ wc }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="font-semibold text-gray-900 dark:text-white">N/A</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Cỡ Cán (Grip)</p>
+                        {% if racket.grip_sizes_list %}
+                        <div class="flex flex-wrap gap-1 mt-0.5">
+                            {% for gs in racket.grip_sizes_list %}
+                            <span class="px-2 py-0.5 bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 text-xs font-semibold rounded">{{ gs }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="font-semibold text-gray-900 dark:text-white">N/A</p>
+                        {% endif %}
                     </div>
                     <div>
                         <p class="text-xs text-gray-500 dark:text-gray-400">Cân Bằng</p>
@@ -279,8 +306,24 @@
                     </div>
                     <div class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
                         <span class="text-sm text-gray-500 dark:text-gray-400">Trọng Lượng</span>
-                        <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ racket.weight_class_display }}</span>
+                        <div class="flex flex-wrap gap-1 justify-end">
+                            {% for wc in racket.weight_class_list %}
+                            <span class="px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-xs font-semibold rounded">{{ wc }}</span>
+                            {% else %}
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white">N/A</span>
+                            {% endfor %}
+                        </div>
                     </div>
+                    {% if racket.grip_sizes_list %}
+                    <div class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+                        <span class="text-sm text-gray-500 dark:text-gray-400">Cỡ Cán</span>
+                        <div class="flex flex-wrap gap-1 justify-end">
+                            {% for gs in racket.grip_sizes_list %}
+                            <span class="px-1.5 py-0.5 bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 text-xs font-semibold rounded">{{ gs }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
                     <div class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
                         <span class="text-sm text-gray-500 dark:text-gray-400">Cân Bằng</span>
                         <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ racket.balance_type_display }}</span>
@@ -352,4 +395,67 @@
     </div>
     {% endif %}
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+    var img    = document.getElementById('main-img');
+    var wrap   = document.getElementById('main-image-wrap');
+    var lens   = document.getElementById('zoom-lens');
+    var result = document.getElementById('zoom-result');
+    if (!img || !lens || !result) return;
+
+    var ZOOM     = 3;    // magnification
+    var LENS_SZ  = 100;  // must match CSS width/height
+    var RES_SZ   = 220;  // result panel size
+
+    function initZoom() {
+        result.style.backgroundImage = 'url("' + img.src + '")';
+    }
+    initZoom();
+    img.addEventListener('load', initZoom);
+
+    wrap.addEventListener('mouseenter', function () {
+        lens.classList.remove('hidden');
+        result.classList.remove('hidden');
+    });
+    wrap.addEventListener('mouseleave', function () {
+        lens.classList.add('hidden');
+        result.classList.add('hidden');
+    });
+
+    wrap.addEventListener('mousemove', function (e) {
+        var imgR  = img.getBoundingClientRect();
+        var wrapR = wrap.getBoundingClientRect();
+
+        // Cursor position relative to the rendered image, clamped inside
+        var x = Math.max(LENS_SZ / 2, Math.min(e.clientX - imgR.left,  imgR.width  - LENS_SZ / 2));
+        var y = Math.max(LENS_SZ / 2, Math.min(e.clientY - imgR.top,   imgR.height - LENS_SZ / 2));
+
+        // Lens position inside wrap
+        lens.style.left = (e.clientX - wrapR.left - LENS_SZ / 2) + 'px';
+        lens.style.top  = (e.clientY - wrapR.top  - LENS_SZ / 2) + 'px';
+
+        // Zoom background
+        var nW = img.naturalWidth  || imgR.width;
+        var nH = img.naturalHeight || imgR.height;
+        var bgW = nW * ZOOM;
+        var bgH = nH * ZOOM;
+        var bgX = -(x * (nW / imgR.width)  * ZOOM - RES_SZ / 2);
+        var bgY = -(y * (nH / imgR.height) * ZOOM - RES_SZ / 2);
+
+        result.style.backgroundSize     = bgW + 'px ' + bgH + 'px';
+        result.style.backgroundPosition = bgX + 'px ' + bgY + 'px';
+
+        // Keep result panel inside wrap, float left or right of cursor
+        var relX  = e.clientX - wrapR.left;
+        var relY  = e.clientY - wrapR.top;
+        var rLeft = (relX + 20 + RES_SZ > wrapR.width) ? relX - RES_SZ - 20 : relX + 20;
+        var rTop  = Math.max(0, Math.min(relY - RES_SZ / 2, wrapR.height - RES_SZ));
+        result.style.left = rLeft + 'px';
+        result.style.top  = rTop  + 'px';
+    });
+})();
+</script>
 {% endblock %}

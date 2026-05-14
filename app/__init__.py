@@ -60,12 +60,27 @@ def create_app(config_class=Config):
         db.session.rollback()
         return render_template('errors/500.html'), 500
 
-    # Create tables and auto-seed if empty
+    # Create tables, run migrations, and auto-seed if empty
     with app.app_context():
         db.create_all()
+        _migrate_db()
         _auto_seed()
 
     return app
+
+
+def _migrate_db():
+    """Add new columns to existing tables if they don't exist yet."""
+    from app.extensions import db
+    migrations = [
+        "ALTER TABLE rackets ADD COLUMN grip_sizes VARCHAR(50)",
+    ]
+    for sql in migrations:
+        try:
+            db.session.execute(db.text(sql))
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
 
 
 def _auto_seed():
