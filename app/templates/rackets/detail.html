@@ -20,18 +20,12 @@
         <!-- Image Gallery -->
         <div>
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md overflow-hidden mb-4">
-                <div class="aspect-[4/3] flex items-center justify-center bg-white dark:bg-gray-800 relative select-none" id="main-image-wrap">
+                <div class="aspect-[4/3] flex items-center justify-center bg-white dark:bg-gray-800 relative select-none overflow-hidden" id="main-image-wrap">
                     {% if images %}
                     <img id="main-img" src="{{ url_for('main.uploaded_file', filename=images[0].filename) }}"
                         alt="{{ racket.name }}"
-                        class="max-h-full max-w-full object-contain p-2 transition-transform duration-100"
-                        style="cursor: crosshair;">
-                    <!-- Zoom lens -->
-                    <div id="zoom-lens" class="pointer-events-none absolute hidden rounded-full border-2 border-green-500/60 shadow-lg"
-                        style="width:100px;height:100px;background-repeat:no-repeat;box-shadow:0 0 0 2px rgba(22,163,74,.4),0 4px 24px rgba(0,0,0,.18);"></div>
-                    <!-- Zoom result panel -->
-                    <div id="zoom-result" class="pointer-events-none absolute hidden right-0 top-0 rounded-xl border border-gray-200 dark:border-gray-600 shadow-xl overflow-hidden z-20"
-                        style="width:220px;height:220px;background-repeat:no-repeat;background-color:#f9fafb;"></div>
+                        class="max-h-full max-w-full object-contain p-2"
+                        style="cursor: zoom-in; transition: transform 0.1s ease; transform-origin: 50% 50%;">
                     {% else %}
                     <div class="flex flex-col items-center text-gray-300 dark:text-gray-500">
                         <svg class="w-24 h-24 mb-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>
@@ -407,61 +401,32 @@
 {% block scripts %}
 <script>
 (function () {
-    var img    = document.getElementById('main-img');
-    var wrap   = document.getElementById('main-image-wrap');
-    var lens   = document.getElementById('zoom-lens');
-    var result = document.getElementById('zoom-result');
-    if (!img || !lens || !result) return;
+    var img  = document.getElementById('main-img');
+    var wrap = document.getElementById('main-image-wrap');
+    if (!img || !wrap) return;
 
-    var ZOOM     = 3;    // magnification
-    var LENS_SZ  = 100;  // must match CSS width/height
-    var RES_SZ   = 220;  // result panel size
-
-    function initZoom() {
-        result.style.backgroundImage = 'url("' + img.src + '")';
-    }
-    initZoom();
-    img.addEventListener('load', initZoom);
+    var ZOOM = 2.5;
+    var zoomed = false;
 
     wrap.addEventListener('mouseenter', function () {
-        lens.classList.remove('hidden');
-        result.classList.remove('hidden');
+        zoomed = true;
+        img.style.transform = 'scale(' + ZOOM + ')';
+        img.style.cursor = 'zoom-in';
     });
+
     wrap.addEventListener('mouseleave', function () {
-        lens.classList.add('hidden');
-        result.classList.add('hidden');
+        zoomed = false;
+        img.style.transform = 'scale(1)';
+        img.style.transformOrigin = '50% 50%';
+        img.style.cursor = 'zoom-in';
     });
 
     wrap.addEventListener('mousemove', function (e) {
-        var imgR  = img.getBoundingClientRect();
-        var wrapR = wrap.getBoundingClientRect();
-
-        // Cursor position relative to the rendered image, clamped inside
-        var x = Math.max(LENS_SZ / 2, Math.min(e.clientX - imgR.left,  imgR.width  - LENS_SZ / 2));
-        var y = Math.max(LENS_SZ / 2, Math.min(e.clientY - imgR.top,   imgR.height - LENS_SZ / 2));
-
-        // Lens position inside wrap
-        lens.style.left = (e.clientX - wrapR.left - LENS_SZ / 2) + 'px';
-        lens.style.top  = (e.clientY - wrapR.top  - LENS_SZ / 2) + 'px';
-
-        // Zoom background
-        var nW = img.naturalWidth  || imgR.width;
-        var nH = img.naturalHeight || imgR.height;
-        var bgW = nW * ZOOM;
-        var bgH = nH * ZOOM;
-        var bgX = -(x * (nW / imgR.width)  * ZOOM - RES_SZ / 2);
-        var bgY = -(y * (nH / imgR.height) * ZOOM - RES_SZ / 2);
-
-        result.style.backgroundSize     = bgW + 'px ' + bgH + 'px';
-        result.style.backgroundPosition = bgX + 'px ' + bgY + 'px';
-
-        // Keep result panel inside wrap, float left or right of cursor
-        var relX  = e.clientX - wrapR.left;
-        var relY  = e.clientY - wrapR.top;
-        var rLeft = (relX + 20 + RES_SZ > wrapR.width) ? relX - RES_SZ - 20 : relX + 20;
-        var rTop  = Math.max(0, Math.min(relY - RES_SZ / 2, wrapR.height - RES_SZ));
-        result.style.left = rLeft + 'px';
-        result.style.top  = rTop  + 'px';
+        if (!zoomed) return;
+        var r = wrap.getBoundingClientRect();
+        var x = ((e.clientX - r.left) / r.width)  * 100;
+        var y = ((e.clientY - r.top)  / r.height) * 100;
+        img.style.transformOrigin = x + '% ' + y + '%';
     });
 })();
 </script>
