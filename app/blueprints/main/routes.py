@@ -2,6 +2,7 @@ from flask import render_template, request, jsonify, Response, current_app, send
 from app.blueprints.main import main_bp
 from app.models import Racket, Brand, BlogPost, RacketImage
 from app.extensions import db
+from sqlalchemy import func
 from datetime import datetime
 import os
 
@@ -36,10 +37,11 @@ def suggest():
     q = request.args.get('q', '').strip()
     if len(q) < 1:
         return jsonify([])
+    q_lower = q.lower()
     rackets = Racket.query.join(Brand).filter(
         db.or_(
-            Racket.name.ilike(f'%{q}%'),
-            Brand.name.ilike(f'%{q}%')
+            func.lower(Racket.name).contains(q_lower),
+            func.lower(Brand.name).contains(q_lower)
         )
     ).order_by(Racket.name).limit(8).all()
     return jsonify([
@@ -56,11 +58,12 @@ def search():
 
     results = []
     if query:
+        q_lower = query.lower()
         rackets = Racket.query.join(Brand).filter(
             db.or_(
-                Racket.name.ilike(f'%{query}%'),
-                Brand.name.ilike(f'%{query}%'),
-                Racket.description.ilike(f'%{query}%')
+                func.lower(Racket.name).contains(q_lower),
+                func.lower(Brand.name).contains(q_lower),
+                func.lower(Racket.description).contains(q_lower)
             )
         ).limit(20).all()
 
