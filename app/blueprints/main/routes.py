@@ -38,10 +38,12 @@ def suggest():
     if len(q) < 1:
         return jsonify([])
     q_lower = q.lower()
+    full = func.lower(Brand.name) + ' ' + func.lower(Racket.name)
     rackets = Racket.query.join(Brand).filter(
         db.or_(
             func.lower(Racket.name).contains(q_lower),
-            func.lower(Brand.name).contains(q_lower)
+            func.lower(Brand.name).contains(q_lower),
+            full.contains(q_lower)
         )
     ).order_by(Racket.name).limit(8).all()
     return jsonify([
@@ -59,10 +61,12 @@ def search():
     results = []
     if query:
         q_lower = query.lower()
+        full = func.lower(Brand.name) + ' ' + func.lower(Racket.name)
         rackets = Racket.query.join(Brand).filter(
             db.or_(
                 func.lower(Racket.name).contains(q_lower),
                 func.lower(Brand.name).contains(q_lower),
+                full.contains(q_lower),
                 func.lower(Racket.description).contains(q_lower)
             )
         ).limit(20).all()
