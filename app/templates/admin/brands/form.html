@@ -37,7 +37,7 @@
                 <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Logo</label>
                 {% if brand and brand.logo %}
                 <div class="mb-3">
-                    <img src="{{ url_for('static', filename='uploads/' + brand.logo) }}" alt="Logo hiện tại" class="w-20 h-20 object-contain border border-gray-200 dark:border-gray-600 rounded-lg p-1">
+                    <img src="{{ url_for('main.uploaded_file', filename=brand.logo) }}" alt="Logo hiện tại" class="w-20 h-20 object-contain border border-gray-200 dark:border-gray-600 rounded-lg p-1">
                     <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Logo hiện tại. Upload file mới để thay thế.</p>
                 </div>
                 {% endif %}
@@ -48,7 +48,7 @@
                 <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Banner</label>
                 {% if brand and brand.banner_image %}
                 <div class="mb-3">
-                    <img src="{{ url_for('static', filename='uploads/' + brand.banner_image) }}" alt="Banner hiện tại" class="w-full h-24 object-cover border border-gray-200 dark:border-gray-600 rounded-lg">
+                    <img src="{{ url_for('main.uploaded_file', filename=brand.banner_image) }}" alt="Banner hiện tại" class="w-full h-24 object-cover border border-gray-200 dark:border-gray-600 rounded-lg">
                     <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Banner hiện tại. Upload file mới để thay thế.</p>
                 </div>
                 {% endif %}

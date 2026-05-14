@@ -24,7 +24,7 @@
             class="card group p-6 flex items-start gap-5 hover:border-green-300 dark:hover:border-green-600 border border-transparent transition-all">
             <div class="w-20 h-20 flex-shrink-0 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center overflow-hidden shadow-sm">
                 {% if brand.logo %}
-                <img src="{{ url_for('static', filename='uploads/' + brand.logo) }}" alt="{{ brand.name }}" class="w-full h-full object-contain p-2">
+                <img src="{{ url_for('main.uploaded_file', filename=brand.logo) }}" alt="{{ brand.name }}" class="w-full h-full object-contain p-2">
                 {% else %}
                 <span class="text-3xl font-extrabold text-green-600 dark:text-green-400">{{ brand.name[0] }}</span>
                 {% endif %}

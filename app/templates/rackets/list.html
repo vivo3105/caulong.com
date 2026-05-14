@@ -178,7 +178,7 @@
                     <a href="{{ url_for('rackets.racket_detail', slug=racket.slug) }}">
                         <div class="relative h-52 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 overflow-hidden">
                             {% if racket.primary_image %}
-                            <img src="{{ url_for('static', filename='uploads/' + racket.primary_image.filename) }}"
+                            <img src="{{ url_for('main.uploaded_file', filename=racket.primary_image.filename) }}"
                                 alt="{{ racket.name }}"
                                 class="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-300">
                             {% else %}

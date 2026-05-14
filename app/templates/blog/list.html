@@ -24,7 +24,7 @@
             <a href="{{ url_for('blog.post_detail', slug=post.slug) }}">
                 <div class="h-52 bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/30 dark:to-emerald-800/30 overflow-hidden">
                     {% if post.featured_image %}
-                    <img src="{{ url_for('static', filename='uploads/' + post.featured_image) }}"
+                    <img src="{{ url_for('main.uploaded_file', filename=post.featured_image) }}"
                         alt="{{ post.title }}"
                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                     {% else %}

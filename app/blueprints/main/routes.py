@@ -1,8 +1,15 @@
-from flask import render_template, request, jsonify, Response, current_app
+from flask import render_template, request, jsonify, Response, current_app, send_from_directory
 from app.blueprints.main import main_bp
 from app.models import Racket, Brand, BlogPost, RacketImage
 from app.extensions import db
 from datetime import datetime
+import os
+
+
+@main_bp.route('/media/<path:filename>')
+def uploaded_file(filename):
+    """Serve uploaded files from UPLOAD_FOLDER (works on both local and Azure)."""
+    return send_from_directory(current_app.config['UPLOAD_FOLDER'], filename)
 
 
 @main_bp.route('/')
@@ -42,7 +49,7 @@ def search():
 
         for r in rackets:
             primary = r.primary_image
-            image_url = f'/static/uploads/{primary.filename}' if primary else '/static/img/placeholder.png'
+            image_url = f'/media/{primary.filename}' if primary else '/static/img/placeholder.png'
             results.append({
                 'name': r.name,
                 'slug': r.slug,
