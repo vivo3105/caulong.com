@@ -20,11 +20,11 @@
         <!-- Image Gallery -->
         <div>
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md overflow-hidden mb-4">
-                <div class="h-80 md:h-96 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 relative select-none" id="main-image-wrap">
+                <div class="aspect-[4/3] flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 relative select-none" id="main-image-wrap">
                     {% if images %}
                     <img id="main-img" src="{{ url_for('main.uploaded_file', filename=images[0].filename) }}"
                         alt="{{ racket.name }}"
-                        class="max-h-full max-w-full object-contain p-6 transition-transform duration-100"
+                        class="max-h-full max-w-full object-contain p-2 transition-transform duration-100"
                         style="cursor: crosshair;">
                     <!-- Zoom lens -->
                     <div id="zoom-lens" class="pointer-events-none absolute hidden rounded-full border-2 border-green-500/60 shadow-lg"
@@ -150,15 +150,20 @@
             </div>
 
             <!-- Action Buttons -->
-            <div class="flex flex-wrap gap-3">
+            <div class="grid grid-cols-2 gap-3">
                 <button onclick="toggleCompare({{ racket.id }}, '{{ racket.name }}')"
                     id="compare-btn-{{ racket.id }}"
-                    class="btn-secondary flex-1 justify-center">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-                    Thêm So Sánh
+                    class="btn-secondary justify-center">
+                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m-4-4l4 4 4-4M4 8h16"/>
+                    </svg>
+                    <span>Thêm So Sánh</span>
                 </button>
-                <a href="{{ url_for('main.compare') }}?id={{ racket.id }}" class="btn-primary flex-1 justify-center">
-                    So Sánh Ngay
+                <a href="{{ url_for('main.compare') }}?id={{ racket.id }}" class="btn-primary justify-center">
+                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                    <span>So Sánh Ngay</span>
                 </a>
             </div>
         </div>
@@ -345,9 +350,11 @@
                 </div>
                 <button onclick="toggleCompare({{ racket.id }}, '{{ racket.name }}')"
                     id="compare-btn-{{ racket.id }}-side"
-                    class="w-full btn-primary justify-center mt-4">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-                    Thêm So Sánh
+                    class="w-full btn-secondary justify-center mt-4">
+                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                    <span>Thêm So Sánh</span>
                 </button>
             </div>
 
