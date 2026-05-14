@@ -1,4 +1,7 @@
 import os
+import csv
+import io
+import json
 from functools import wraps
 from flask import render_template, redirect, url_for, flash, request, current_app, jsonify
 from flask_login import login_required, current_user
@@ -427,3 +430,149 @@ def upload_image():
     if not fname:
         return jsonify({'error': 'Định dạng file không được hỗ trợ.'}), 400
     return jsonify({'filename': fname, 'url': f'/media/{fname}'})
+
+
+# ── Bulk Import ───────────────────────────────────────────────────────────────
+
+IMPORT_FIELDS = [
+    'name', 'brand', 'weight_class', 'balance_type', 'flexibility',
+    'frame_material', 'shaft_material', 'skill_level', 'price',
+    'string_tension_min', 'string_tension_max', 'length_mm',
+    'description', 'pros', 'cons', 'playing_style',
+    'is_featured', 'meta_title', 'meta_description',
+]
+
+BOOL_FIELDS = {'is_featured'}
+INT_FIELDS = {'price', 'string_tension_min', 'string_tension_max', 'length_mm'}
+
+
+def _parse_row(row):
+    """Normalise a dict row from CSV/JSON into cleaned field values."""
+    data = {}
+    for field in IMPORT_FIELDS:
+        val = row.get(field, '').strip() if isinstance(row.get(field), str) else row.get(field)
+        if val is None or val == '':
+            continue
+        if field in BOOL_FIELDS:
+            data[field] = str(val).lower() in ('1', 'true', 'yes', 'có')
+        elif field in INT_FIELDS:
+            try:
+                data[field] = int(val)
+            except (ValueError, TypeError):
+                pass
+        else:
+            data[field] = val
+    return data
+
+
+def _apply_row(data, brands_cache):
+    """Insert or update a Racket from cleaned data. Returns (action, error)."""
+    brand_name = data.pop('brand', None)
+    if not brand_name:
+        return None, 'Thiếu tên thương hiệu (brand)'
+    racket_name = data.get('name')
+    if not racket_name:
+        return None, 'Thiếu tên vợt (name)'
+
+    # Resolve brand
+    brand = brands_cache.get(brand_name.lower())
+    if not brand:
+        brand = Brand.query.filter(Brand.name.ilike(brand_name)).first()
+        if not brand:
+            return None, f'Không tìm thấy thương hiệu "{brand_name}"'
+        brands_cache[brand_name.lower()] = brand
+
+    slug = generate_slug(racket_name)
+    existing = Racket.query.filter(
+        db.or_(Racket.slug == slug, Racket.name.ilike(racket_name))
+    ).first()
+
+    if existing:
+        for k, v in data.items():
+            if k != 'name':
+                setattr(existing, k, v)
+        existing.brand_id = brand.id
+        existing.updated_at = datetime.utcnow()
+        return 'updated', None
+    else:
+        racket = Racket(slug=slug, brand_id=brand.id, **data)
+        db.session.add(racket)
+        return 'created', None
+
+
+@admin_bp.route('/nhap-lieu-hang-loat', methods=['GET', 'POST'])
+@admin_required
+def bulk_import():
+    brands = Brand.query.order_by(Brand.name).all()
+    template_fields = IMPORT_FIELDS
+
+    if request.method == 'GET':
+        return render_template('admin/rackets/bulk_import.html',
+                               brands=brands,
+                               template_fields=template_fields)
+
+    # ── Parse input ──────────────────────────────────────────────────────────
+    rows = []
+    errors = []
+    fmt = request.form.get('format', 'csv')
+    raw_text = request.form.get('data', '').strip()
+    uploaded = request.files.get('file')
+
+    if uploaded and uploaded.filename:
+        raw_bytes = uploaded.read()
+        raw_text = raw_bytes.decode('utf-8-sig', errors='replace')
+        ext = uploaded.filename.rsplit('.', 1)[-1].lower()
+        fmt = 'json' if ext == 'json' else 'csv'
+
+    if not raw_text:
+        flash('Vui lòng nhập dữ liệu hoặc tải file lên.', 'error')
+        return render_template('admin/rackets/bulk_import.html',
+                               brands=brands, template_fields=template_fields)
+
+    if fmt == 'json':
+        try:
+            payload = json.loads(raw_text)
+            rows = payload if isinstance(payload, list) else [payload]
+        except json.JSONDecodeError as e:
+            flash(f'JSON không hợp lệ: {e}', 'error')
+            return render_template('admin/rackets/bulk_import.html',
+                                   brands=brands, template_fields=template_fields,
+                                   raw_data=raw_text)
+    else:
+        reader = csv.DictReader(io.StringIO(raw_text))
+        rows = list(reader)
+
+    if not rows:
+        flash('Không có dữ liệu để nhập.', 'error')
+        return render_template('admin/rackets/bulk_import.html',
+                               brands=brands, template_fields=template_fields)
+
+    # ── Process rows ─────────────────────────────────────────────────────────
+    created = updated = 0
+    brands_cache = {}
+
+    for i, row in enumerate(rows, start=1):
+        data = _parse_row(row)
+        action, err = _apply_row(data, brands_cache)
+        if err:
+            errors.append(f'Dòng {i} ({row.get("name", "?")}): {err}')
+        elif action == 'created':
+            created += 1
+        elif action == 'updated':
+            updated += 1
+
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Lỗi khi lưu dữ liệu: {e}', 'error')
+        return render_template('admin/rackets/bulk_import.html',
+                               brands=brands, template_fields=template_fields)
+
+    if created or updated:
+        flash(f'Nhập thành công: {created} vợt mới, {updated} vợt đã cập nhật.', 'success')
+    if errors:
+        for err in errors:
+            flash(err, 'error')
+
+    return redirect(url_for('admin.bulk_import'))

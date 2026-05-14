@@ -1,0 +1,262 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Nhập Liệu Hàng Loạt{% endblock %}
+{% block page_title %}Nhập Liệu Vợt Hàng Loạt{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto space-y-6">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <p class="text-sm text-gray-500 dark:text-gray-400">
+            Nhập nhiều vợt cùng lúc qua file CSV hoặc JSON. Nếu vợt đã tồn tại (theo tên hoặc slug) sẽ được <strong>cập nhật</strong>, chưa có sẽ được <strong>tạo mới</strong>.
+        </p>
+        <a href="{{ url_for('admin.rackets_list') }}"
+           class="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 flex items-center gap-1">
+            ← Danh sách vợt
+        </a>
+    </div>
+
+    <!-- Format tabs -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div class="border-b border-gray-200 dark:border-gray-700 px-6 pt-4 flex gap-4" id="format-tabs">
+            <button onclick="switchTab('csv')" id="tab-csv"
+                class="tab-btn pb-3 text-sm font-semibold border-b-2 border-green-600 text-green-600">
+                CSV
+            </button>
+            <button onclick="switchTab('json')" id="tab-json"
+                class="tab-btn pb-3 text-sm font-semibold border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+                JSON
+            </button>
+            <button onclick="switchTab('file')" id="tab-file"
+                class="tab-btn pb-3 text-sm font-semibold border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+                Tải file lên
+            </button>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" class="p-6 space-y-5">
+            <input type="hidden" name="format" id="format-input" value="csv">
+
+            <!-- CSV panel -->
+            <div id="panel-csv">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Dán nội dung CSV (dòng đầu là tiêu đề cột):
+                </label>
+                <textarea name="data" id="csv-data" rows="12"
+                    class="w-full font-mono text-xs rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="name,brand,weight_class,balance_type,flexibility,skill_level,price,...&#10;Astrox 100 ZZ,Yonex,3U,head_heavy,stiff,advanced,4200000,..."></textarea>
+                <button type="button" onclick="fillCsvExample()"
+                    class="mt-2 text-xs text-green-600 dark:text-green-400 hover:underline">
+                    Điền ví dụ mẫu
+                </button>
+            </div>
+
+            <!-- JSON panel -->
+            <div id="panel-json" class="hidden">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Dán nội dung JSON (mảng các object):
+                </label>
+                <textarea name="data" id="json-data" rows="12"
+                    class="w-full font-mono text-xs rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder='[&#10;  {&#10;    "name": "Astrox 100 ZZ",&#10;    "brand": "Yonex",&#10;    "skill_level": "advanced",&#10;    "price": 4200000&#10;  }&#10;]'></textarea>
+                <button type="button" onclick="fillJsonExample()"
+                    class="mt-2 text-xs text-green-600 dark:text-green-400 hover:underline">
+                    Điền ví dụ mẫu
+                </button>
+            </div>
+
+            <!-- File upload panel -->
+            <div id="panel-file" class="hidden">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Chọn file CSV hoặc JSON:
+                </label>
+                <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-8 text-center hover:border-green-500 transition-colors cursor-pointer" onclick="document.getElementById('file-input').click()">
+                    <svg class="w-10 h-10 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <p class="text-sm text-gray-500 dark:text-gray-400" id="file-label">Nhấn để chọn file .csv hoặc .json</p>
+                    <input type="file" id="file-input" name="file" accept=".csv,.json"
+                        class="hidden" onchange="updateFileLabel(this)">
+                </div>
+            </div>
+
+            <div class="flex justify-end pt-2">
+                <button type="submit"
+                    class="px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg transition-colors">
+                    Nhập Dữ Liệu
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Field reference -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-4">Danh sách các cột được hỗ trợ</h3>
+        <div class="overflow-x-auto">
+            <table class="w-full text-xs">
+                <thead>
+                    <tr class="text-left text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
+                        <th class="pb-2 pr-4 font-medium">Tên cột</th>
+                        <th class="pb-2 pr-4 font-medium">Bắt buộc</th>
+                        <th class="pb-2 font-medium">Giá trị hợp lệ / Ghi chú</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-700 font-mono">
+                    <tr class="py-1">
+                        <td class="py-1.5 pr-4 text-green-700 dark:text-green-400">name</td>
+                        <td class="py-1.5 pr-4 text-red-500">✓</td>
+                        <td class="py-1.5 text-gray-600 dark:text-gray-400">Tên vợt</td>
+                    </tr>
+                    <tr>
+                        <td class="py-1.5 pr-4 text-green-700 dark:text-green-400">brand</td>
+                        <td class="py-1.5 pr-4 text-red-500">✓</td>
+                        <td class="py-1.5 text-gray-600 dark:text-gray-400">
+                            Tên thương hiệu đã có trong hệ thống:
+                            {% for b in brands %}<span class="bg-gray-100 dark:bg-gray-700 rounded px-1">{{ b.name }}</span>{% if not loop.last %} {% endif %}{% endfor %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="py-1.5 pr-4 text-blue-700 dark:text-blue-400">weight_class</td>
+                        <td class="py-1.5 pr-4 text-gray-400">-</td>
+                        <td class="py-1.5 text-gray-600 dark:text-gray-400">3U · 4U · 5U</td>
+                    </tr>
+                    <tr>
+                        <td class="py-1.5 pr-4 text-blue-700 dark:text-blue-400">balance_type</td>
+                        <td class="py-1.5 pr-4 text-gray-400">-</td>
+                        <td class="py-1.5 text-gray-600 dark:text-gray-400">head_heavy · even · head_light</td>
+                    </tr>
+                    <tr>
+                        <td class="py-1.5 pr-4 text-blue-700 dark:text-blue-400">flexibility</td>
+                        <td class="py-1.5 pr-4 text-gray-400">-</td>
+                        <td class="py-1.5 text-gray-600 dark:text-gray-400">extra_stiff · stiff · medium · flexible · extra_flexible</td>
+                    </tr>
+                    <tr>
+                        <td class="py-1.5 pr-4 text-blue-700 dark:text-blue-400">skill_level</td>
+                        <td class="py-1.5 pr-4 text-gray-400">-</td>
+                        <td class="py-1.5 text-gray-600 dark:text-gray-400">beginner · intermediate · advanced · professional</td>
+                    </tr>
+                    <tr>
+                        <td class="py-1.5 pr-4 text-blue-700 dark:text-blue-400">price</td>
+                        <td class="py-1.5 pr-4 text-gray-400">-</td>
+                        <td class="py-1.5 text-gray-600 dark:text-gray-400">Số nguyên (VND), ví dụ: 4200000</td>
+                    </tr>
+                    <tr>
+                        <td class="py-1.5 pr-4 text-blue-700 dark:text-blue-400">frame_material</td>
+                        <td class="py-1.5 pr-4 text-gray-400">-</td>
+                        <td class="py-1.5 text-gray-600 dark:text-gray-400">Văn bản tự do</td>
+                    </tr>
+                    <tr>
+                        <td class="py-1.5 pr-4 text-blue-700 dark:text-blue-400">shaft_material</td>
+                        <td class="py-1.5 pr-4 text-gray-400">-</td>
+                        <td class="py-1.5 text-gray-600 dark:text-gray-400">Văn bản tự do</td>
+                    </tr>
+                    <tr>
+                        <td class="py-1.5 pr-4 text-blue-700 dark:text-blue-400">string_tension_min</td>
+                        <td class="py-1.5 pr-4 text-gray-400">-</td>
+                        <td class="py-1.5 text-gray-600 dark:text-gray-400">Số nguyên (lbs)</td>
+                    </tr>
+                    <tr>
+                        <td class="py-1.5 pr-4 text-blue-700 dark:text-blue-400">string_tension_max</td>
+                        <td class="py-1.5 pr-4 text-gray-400">-</td>
+                        <td class="py-1.5 text-gray-600 dark:text-gray-400">Số nguyên (lbs)</td>
+                    </tr>
+                    <tr>
+                        <td class="py-1.5 pr-4 text-blue-700 dark:text-blue-400">length_mm</td>
+                        <td class="py-1.5 pr-4 text-gray-400">-</td>
+                        <td class="py-1.5 text-gray-600 dark:text-gray-400">Số nguyên (mm), mặc định 675</td>
+                    </tr>
+                    <tr>
+                        <td class="py-1.5 pr-4 text-blue-700 dark:text-blue-400">description</td>
+                        <td class="py-1.5 pr-4 text-gray-400">-</td>
+                        <td class="py-1.5 text-gray-600 dark:text-gray-400">Mô tả, hỗ trợ HTML</td>
+                    </tr>
+                    <tr>
+                        <td class="py-1.5 pr-4 text-blue-700 dark:text-blue-400">pros / cons</td>
+                        <td class="py-1.5 pr-4 text-gray-400">-</td>
+                        <td class="py-1.5 text-gray-600 dark:text-gray-400">Ưu / nhược điểm</td>
+                    </tr>
+                    <tr>
+                        <td class="py-1.5 pr-4 text-blue-700 dark:text-blue-400">playing_style</td>
+                        <td class="py-1.5 pr-4 text-gray-400">-</td>
+                        <td class="py-1.5 text-gray-600 dark:text-gray-400">Phong cách chơi phù hợp</td>
+                    </tr>
+                    <tr>
+                        <td class="py-1.5 pr-4 text-blue-700 dark:text-blue-400">is_featured</td>
+                        <td class="py-1.5 pr-4 text-gray-400">-</td>
+                        <td class="py-1.5 text-gray-600 dark:text-gray-400">true / false · 1 / 0</td>
+                    </tr>
+                    <tr>
+                        <td class="py-1.5 pr-4 text-blue-700 dark:text-blue-400">meta_title</td>
+                        <td class="py-1.5 pr-4 text-gray-400">-</td>
+                        <td class="py-1.5 text-gray-600 dark:text-gray-400">SEO title (tối đa 200 ký tự)</td>
+                    </tr>
+                    <tr>
+                        <td class="py-1.5 pr-4 text-blue-700 dark:text-blue-400">meta_description</td>
+                        <td class="py-1.5 pr-4 text-gray-400">-</td>
+                        <td class="py-1.5 text-gray-600 dark:text-gray-400">SEO description (tối đa 300 ký tự)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const CSV_EXAMPLE = `name,brand,weight_class,balance_type,flexibility,skill_level,price,string_tension_min,string_tension_max,frame_material,shaft_material,description,is_featured
+Astrox 100 ZZ,Yonex,3U,head_heavy,stiff,advanced,4200000,24,30,HM Graphite,HM Graphite,Vợt tấn công cao cấp dành cho người chơi nâng cao.,false
+Nanoflare 1000 Z,Yonex,4U,head_light,extra_stiff,professional,5800000,26,32,HM Graphite,HM Graphite,Vợt phòng thủ tốc độ cao.,false`;
+
+const JSON_EXAMPLE = JSON.stringify([
+  {
+    "name": "Astrox 100 ZZ",
+    "brand": "Yonex",
+    "weight_class": "3U",
+    "balance_type": "head_heavy",
+    "flexibility": "stiff",
+    "skill_level": "advanced",
+    "price": 4200000,
+    "string_tension_min": 24,
+    "string_tension_max": 30,
+    "frame_material": "HM Graphite",
+    "shaft_material": "HM Graphite",
+    "description": "Vợt tấn công cao cấp dành cho người chơi nâng cao.",
+    "is_featured": false
+  }
+], null, 2);
+
+function switchTab(fmt) {
+    ['csv','json','file'].forEach(function(t) {
+        document.getElementById('panel-' + t).classList.add('hidden');
+        const tab = document.getElementById('tab-' + t);
+        tab.classList.remove('border-green-600', 'text-green-600');
+        tab.classList.add('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+    });
+    document.getElementById('panel-' + fmt).classList.remove('hidden');
+    const active = document.getElementById('tab-' + fmt);
+    active.classList.add('border-green-600', 'text-green-600');
+    active.classList.remove('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+    document.getElementById('format-input').value = fmt === 'file' ? 'csv' : fmt;
+}
+
+function fillCsvExample() {
+    document.getElementById('csv-data').value = CSV_EXAMPLE;
+}
+
+function fillJsonExample() {
+    document.getElementById('json-data').value = JSON_EXAMPLE;
+}
+
+function updateFileLabel(input) {
+    const label = document.getElementById('file-label');
+    if (input.files && input.files[0]) {
+        const f = input.files[0];
+        label.textContent = f.name + ' (' + (f.size / 1024).toFixed(1) + ' KB)';
+        const ext = f.name.split('.').pop().toLowerCase();
+        document.getElementById('format-input').value = ext === 'json' ? 'json' : 'csv';
+    }
+}
+</script>
+{% endblock %}
