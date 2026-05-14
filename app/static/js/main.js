@@ -35,68 +35,144 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // ─── Nav AJAX Search ─────────────────────────────────────────────────────
+    // ─── Nav Search Autocomplete ──────────────────────────────────────────────
 
     const navSearch = document.getElementById('nav-search');
     const searchResults = document.getElementById('search-results');
+    const searchClear = document.getElementById('search-clear');
 
     if (navSearch && searchResults) {
         let searchTimeout = null;
+        let activeIndex = -1;
+        let suggestions = [];
+        let origValue = '';
 
-        navSearch.addEventListener('input', function () {
-            const q = this.value.trim();
-            clearTimeout(searchTimeout);
+        function esc(s) {
+            return String(s)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
 
-            if (q.length < 2) {
-                searchResults.classList.add('hidden');
-                searchResults.innerHTML = '';
+        function highlight(text, q) {
+            if (!q) return esc(text);
+            var re = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+            return esc(text).replace(re, '<strong class="text-green-600 dark:text-green-400 font-semibold">$1</strong>');
+        }
+
+        function closeDropdown() {
+            searchResults.classList.add('hidden');
+            searchResults.innerHTML = '';
+            activeIndex = -1;
+        }
+
+        function renderSuggestions(data, q) {
+            activeIndex = -1;
+            suggestions = data;
+
+            if (data.length === 0) {
+                searchResults.innerHTML =
+                    '<div class="px-4 py-3 text-sm text-gray-400 dark:text-gray-500">' +
+                    'Không tìm thấy kết quả cho "<em>' + esc(q) + '</em>"</div>';
+                searchResults.classList.remove('hidden');
                 return;
             }
 
-            searchTimeout = setTimeout(function () {
-                fetch('/search?q=' + encodeURIComponent(q) + '&format=json', {
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                })
-                .then(function (r) { return r.json(); })
-                .then(function (data) {
-                    if (data.length === 0) {
-                        searchResults.innerHTML = '<div class="px-4 py-3 text-sm text-gray-400 dark:text-gray-500">Không tìm thấy kết quả</div>';
-                    } else {
-                        searchResults.innerHTML = data.slice(0, 8).map(function (item) {
-                            return '<a href="/vot-cau-long/' + item.slug + '" class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">' +
-                                '<div class="w-10 h-10 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700">' +
-                                (item.image_url && item.image_url !== '/static/img/placeholder.png'
-                                    ? '<img src="' + item.image_url + '" alt="" class="w-full h-full object-contain p-0.5">'
-                                    : '<div class="w-full h-full flex items-center justify-center text-gray-400 text-xs">' + item.brand[0] + '</div>') +
-                                '</div>' +
-                                '<div class="flex-1 min-w-0">' +
-                                '<p class="text-sm font-semibold text-gray-900 dark:text-white truncate">' + item.name + '</p>' +
-                                '<p class="text-xs text-gray-400 dark:text-gray-500">' + item.brand + (item.price ? ' · ' + Number(item.price).toLocaleString('vi-VN') + '₫' : '') + '</p>' +
-                                '</div>' +
-                                '</a>';
-                        }).join('');
-                    }
-                    if (data.length > 0) {
-                        searchResults.innerHTML += '<a href="/search?q=' + encodeURIComponent(q) + '" class="block px-4 py-2.5 text-sm text-green-600 dark:text-green-400 font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 border-t border-gray-100 dark:border-gray-700">Xem tất cả ' + data.length + ' kết quả →</a>';
-                    }
-                    searchResults.classList.remove('hidden');
-                })
-                .catch(function () {
-                    searchResults.classList.add('hidden');
+            var html = data.map(function (item, i) {
+                return '<div role="option" data-idx="' + i + '" data-slug="' + esc(item.slug) + '"' +
+                    ' class="suggest-item flex items-center gap-3 px-4 py-2.5 cursor-pointer' +
+                    ' hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors select-none">' +
+                    '<svg class="w-4 h-4 flex-shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+                    '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>' +
+                    '<div class="flex-1 min-w-0">' +
+                    '<p class="text-sm text-gray-900 dark:text-white truncate">' + highlight(item.name, q) + '</p>' +
+                    '<p class="text-xs text-gray-400 dark:text-gray-500 truncate">' + esc(item.brand) + '</p>' +
+                    '</div>' +
+                    '<svg class="w-3.5 h-3.5 flex-shrink-0 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+                    '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17L17 7M7 7h10v10"/></svg>' +
+                    '</div>';
+            }).join('');
+
+            html += '<a href="/search?q=' + encodeURIComponent(q) + '"' +
+                ' class="flex items-center gap-2 px-4 py-2.5 text-sm text-green-600 dark:text-green-400 font-semibold' +
+                ' hover:bg-green-50 dark:hover:bg-green-900/20 border-t border-gray-100 dark:border-gray-700 transition-colors">' +
+                '<svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>' +
+                'Xem tất cả kết quả cho "<strong>' + esc(q) + '</strong>"</a>';
+
+            searchResults.innerHTML = html;
+            searchResults.classList.remove('hidden');
+
+            searchResults.querySelectorAll('.suggest-item').forEach(function (el) {
+                el.addEventListener('mousedown', function (e) {
+                    e.preventDefault();
+                    window.location.href = '/vot-cau-long/' + el.dataset.slug;
                 });
-            }, 300);
+            });
+        }
+
+        function setActive(idx) {
+            var items = searchResults.querySelectorAll('.suggest-item');
+            items.forEach(function (el) {
+                el.classList.remove('bg-gray-50', 'dark:bg-gray-700');
+            });
+            activeIndex = idx;
+            if (idx >= 0 && idx < items.length) {
+                items[idx].classList.add('bg-gray-50', 'dark:bg-gray-700');
+                navSearch.value = suggestions[idx].name;
+            } else {
+                navSearch.value = origValue;
+            }
+        }
+
+        navSearch.addEventListener('input', function () {
+            var q = this.value.trim();
+            origValue = this.value;
+            activeIndex = -1;
+            if (searchClear) searchClear.classList.toggle('hidden', q.length === 0);
+            clearTimeout(searchTimeout);
+            if (q.length < 1) { closeDropdown(); return; }
+            searchTimeout = setTimeout(function () {
+                fetch('/suggest?q=' + encodeURIComponent(q))
+                    .then(function (r) { return r.json(); })
+                    .then(function (data) { renderSuggestions(data, q); })
+                    .catch(function () { closeDropdown(); });
+            }, 160);
         });
 
-        navSearch.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                window.location.href = '/search?q=' + encodeURIComponent(this.value.trim());
+        navSearch.addEventListener('keydown', function (e) {
+            var items = searchResults.querySelectorAll('.suggest-item');
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                setActive(Math.min(activeIndex + 1, items.length - 1));
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                setActive(activeIndex <= 0 ? -1 : activeIndex - 1);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (activeIndex >= 0 && suggestions[activeIndex]) {
+                    window.location.href = '/vot-cau-long/' + suggestions[activeIndex].slug;
+                } else {
+                    var q = navSearch.value.trim();
+                    if (q) window.location.href = '/search?q=' + encodeURIComponent(q);
+                }
+            } else if (e.key === 'Escape') {
+                closeDropdown();
+                navSearch.blur();
             }
         });
+
+        if (searchClear) {
+            searchClear.addEventListener('click', function () {
+                navSearch.value = '';
+                origValue = '';
+                searchClear.classList.add('hidden');
+                closeDropdown();
+                navSearch.focus();
+            });
+        }
 
         document.addEventListener('click', function (e) {
-            if (!navSearch.contains(e.target) && !searchResults.contains(e.target)) {
-                searchResults.classList.add('hidden');
-            }
+            if (!e.target.closest('#search-wrapper')) closeDropdown();
         });
     }
 

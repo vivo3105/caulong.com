@@ -31,6 +31,23 @@ def index():
                            latest_posts=latest_posts)
 
 
+@main_bp.route('/suggest')
+def suggest():
+    q = request.args.get('q', '').strip()
+    if len(q) < 1:
+        return jsonify([])
+    rackets = Racket.query.join(Brand).filter(
+        db.or_(
+            Racket.name.ilike(f'%{q}%'),
+            Brand.name.ilike(f'%{q}%')
+        )
+    ).order_by(Racket.name).limit(8).all()
+    return jsonify([
+        {'name': r.name, 'brand': r.brand.name, 'slug': r.slug}
+        for r in rackets
+    ])
+
+
 @main_bp.route('/search')
 def search():
     query = request.args.get('q', '').strip()
