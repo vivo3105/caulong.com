@@ -81,7 +81,27 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <p class="text-xs text-gray-500 dark:text-gray-400">Cân Nặng</p>
-                        <p class="font-semibold text-gray-900 dark:text-white">{{ racket.weight_class_display }}</p>
+                        {% if racket.weight_class_list %}
+                        <div class="flex flex-wrap gap-1 mt-0.5">
+                            {% for wc in racket.weight_class_list %}
+                            <span class="px-2 py-0.5 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-xs font-semibold rounded">{{ wc }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="font-semibold text-gray-900 dark:text-white">N/A</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Cỡ Cán (Grip)</p>
+                        {% if racket.grip_sizes_list %}
+                        <div class="flex flex-wrap gap-1 mt-0.5">
+                            {% for gs in racket.grip_sizes_list %}
+                            <span class="px-2 py-0.5 bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 text-xs font-semibold rounded">{{ gs }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="font-semibold text-gray-900 dark:text-white">N/A</p>
+                        {% endif %}
                     </div>
                     <div>
                         <p class="text-xs text-gray-500 dark:text-gray-400">Cân Bằng</p>
@@ -279,8 +299,24 @@
                     </div>
                     <div class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
                         <span class="text-sm text-gray-500 dark:text-gray-400">Trọng Lượng</span>
-                        <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ racket.weight_class_display }}</span>
+                        <div class="flex flex-wrap gap-1 justify-end">
+                            {% for wc in racket.weight_class_list %}
+                            <span class="px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-xs font-semibold rounded">{{ wc }}</span>
+                            {% else %}
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white">N/A</span>
+                            {% endfor %}
+                        </div>
                     </div>
+                    {% if racket.grip_sizes_list %}
+                    <div class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+                        <span class="text-sm text-gray-500 dark:text-gray-400">Cỡ Cán</span>
+                        <div class="flex flex-wrap gap-1 justify-end">
+                            {% for gs in racket.grip_sizes_list %}
+                            <span class="px-1.5 py-0.5 bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 text-xs font-semibold rounded">{{ gs }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
                     <div class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
                         <span class="text-sm text-gray-500 dark:text-gray-400">Cân Bằng</span>
                         <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ racket.balance_type_display }}</span>

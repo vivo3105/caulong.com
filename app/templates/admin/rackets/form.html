@@ -72,13 +72,29 @@
                 <div class="grid grid-cols-2 gap-5">
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Cân Nặng (Weight Class)</label>
-                        <select name="weight_class"
-                            class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500">
-                            <option value="">-- Chọn --</option>
-                            {% for wc in ['3U', '4U', '5U'] %}
-                            <option value="{{ wc }}" {{ 'selected' if racket and racket.weight_class == wc }}>{{ wc }}</option>
+                        <div class="flex flex-wrap gap-3 mt-1">
+                            {% for wc in ['2U', '3U', '4U', '5U', '6U'] %}
+                            <label class="flex items-center gap-1.5 cursor-pointer">
+                                <input type="checkbox" name="weight_class" value="{{ wc }}"
+                                    {{ 'checked' if racket and wc in racket.weight_class_list }}
+                                    class="w-4 h-4 rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ wc }}</span>
+                            </label>
                             {% endfor %}
-                        </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Cỡ Cán (Grip Size)</label>
+                        <div class="flex flex-wrap gap-3 mt-1">
+                            {% for gs in ['G4', 'G5', 'G6'] %}
+                            <label class="flex items-center gap-1.5 cursor-pointer">
+                                <input type="checkbox" name="grip_sizes" value="{{ gs }}"
+                                    {{ 'checked' if racket and gs in racket.grip_sizes_list }}
+                                    class="w-4 h-4 rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ gs }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Cân Bằng (Balance)</label>

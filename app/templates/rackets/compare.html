@@ -8,6 +8,7 @@
     ('Đánh Giá',      'rating'),
     ('Trình Độ',      'skill_level'),
     ('Cân Nặng',      'weight_class'),
+    ('Cỡ Cán',        'grip_sizes'),
     ('Cân Bằng',      'balance_type'),
     ('Độ Cứng Cán',   'flexibility'),
     ('Lực Căng Dây',  'tension'),
@@ -82,7 +83,7 @@
             <div class="grid divide-x divide-gray-100 dark:divide-gray-700" style="grid-template-columns: repeat({{ rackets|length }}, 1fr);">
                 {% for racket in rackets %}
                 <div class="px-3 py-3 text-center">
-                    {% if key == 'skill' %}
+                    {% if key == 'skill_level' %}
                     <span class="text-xs font-semibold badge
                         {% if racket.skill_level == 'beginner' %}bg-blue-100 text-blue-700
                         {% elif racket.skill_level == 'intermediate' %}bg-yellow-100 text-yellow-700
@@ -90,20 +91,33 @@
                         {% else %}bg-red-100 text-red-700{% endif %}">
                         {{ racket.skill_level_display }}
                     </span>
-                    {% elif key == 'weight' %}
-                    <span class="text-sm font-bold text-gray-900 dark:text-white">{{ racket.weight_class_display }}</span>
-                    {% elif key == 'balance' %}
+                    {% elif key == 'weight_class' %}
+                    <div class="flex flex-wrap gap-1 justify-center">
+                        {% for wc in racket.weight_class_list %}<span class="px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-xs font-semibold rounded">{{ wc }}</span>{% else %}<span class="text-sm font-semibold text-gray-900 dark:text-white">N/A</span>{% endfor %}
+                    </div>
+                    {% elif key == 'grip_sizes' %}
+                    <div class="flex flex-wrap gap-1 justify-center">
+                        {% for gs in racket.grip_sizes_list %}<span class="px-1.5 py-0.5 bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 text-xs font-semibold rounded">{{ gs }}</span>{% else %}<span class="text-sm text-gray-400">N/A</span>{% endfor %}
+                    </div>
+                    {% elif key == 'balance_type' %}
                     <span class="text-xs font-semibold text-gray-700 dark:text-gray-300">{{ racket.balance_type_display }}</span>
-                    {% elif key == 'flex' %}
+                    {% elif key == 'flexibility' %}
                     <span class="text-xs font-semibold text-gray-700 dark:text-gray-300">{{ racket.flexibility_display }}</span>
                     {% elif key == 'tension' %}
                     <span class="text-xs text-gray-700 dark:text-gray-300">
                         {% if racket.string_tension_min %}{{ racket.string_tension_min }}-{{ racket.string_tension_max }} lbs{% else %}N/A{% endif %}
                     </span>
-                    {% elif key == 'frame' %}
+                    {% elif key == 'frame_material' %}
                     <span class="text-xs text-gray-700 dark:text-gray-300">{{ racket.frame_material or 'N/A' }}</span>
-                    {% elif key == 'shaft' %}
+                    {% elif key == 'shaft_material' %}
                     <span class="text-xs text-gray-700 dark:text-gray-300">{{ racket.shaft_material or 'N/A' }}</span>
+                    {% elif key == 'length_mm' %}
+                    <span class="text-xs text-gray-700 dark:text-gray-300">{{ racket.length_mm or 'N/A' }} mm</span>
+                    {% elif key == 'price' %}
+                    {% if racket.price %}<span class="text-sm font-bold text-green-600 dark:text-green-400">{{ "{:,.0f}".format(racket.price) }}₫</span>
+                    {% else %}<span class="text-gray-400 text-sm">Liên hệ</span>{% endif %}
+                    {% elif key == 'rating' %}
+                    <span class="text-xs text-gray-700 dark:text-gray-300">{{ racket.average_rating }}/5</span>
                     {% endif %}
                 </div>
                 {% endfor %}
@@ -184,7 +198,23 @@
                 </tr>
                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30">
                     {{ td_label('Cân Nặng') }}
-                    {% for racket in rackets %}<td class="px-6 py-4 text-center font-semibold text-gray-900 dark:text-white">{{ racket.weight_class_display }}</td>{% endfor %}
+                    {% for racket in rackets %}
+                    <td class="px-6 py-4 text-center">
+                        <div class="flex flex-wrap gap-1 justify-center">
+                            {% for wc in racket.weight_class_list %}<span class="px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-xs font-semibold rounded">{{ wc }}</span>{% else %}<span class="text-gray-400 text-sm">N/A</span>{% endfor %}
+                        </div>
+                    </td>
+                    {% endfor %}
+                </tr>
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30">
+                    {{ td_label('Cỡ Cán') }}
+                    {% for racket in rackets %}
+                    <td class="px-6 py-4 text-center">
+                        <div class="flex flex-wrap gap-1 justify-center">
+                            {% for gs in racket.grip_sizes_list %}<span class="px-1.5 py-0.5 bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 text-xs font-semibold rounded">{{ gs }}</span>{% else %}<span class="text-gray-400 text-sm">N/A</span>{% endfor %}
+                        </div>
+                    </td>
+                    {% endfor %}
                 </tr>
                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30">
                     {{ td_label('Cân Bằng') }}
