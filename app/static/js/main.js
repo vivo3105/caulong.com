@@ -46,6 +46,23 @@ document.addEventListener('DOMContentLoaded', function () {
         let activeIndex = -1;
         let suggestions = [];
         let origValue = '';
+        let currentQ = '';
+
+        // Inject animation style once
+        if (!document.getElementById('search-anim-style')) {
+            var st = document.createElement('style');
+            st.id = 'search-anim-style';
+            st.textContent =
+                '#search-results{transition:opacity .15s ease,transform .15s ease;transform-origin:top center}' +
+                '#search-results.hidden{opacity:0;transform:scaleY(.96);pointer-events:none}' +
+                '#search-results:not(.hidden){opacity:1;transform:scaleY(1)}' +
+                '@keyframes shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}' +
+                '.skeleton{background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:400px 100%;animation:shimmer 1.2s infinite}' +
+                '.dark .skeleton{background:linear-gradient(90deg,#374151 25%,#4b5563 50%,#374151 75%);background-size:400px 100%}' +
+                '.suggest-item.active{background:rgba(16,185,129,.08)}' +
+                '.dark .suggest-item.active{background:rgba(16,185,129,.12)}';
+            document.head.appendChild(st);
+        }
 
         function esc(s) {
             return String(s)
@@ -56,13 +73,31 @@ document.addEventListener('DOMContentLoaded', function () {
         function highlight(text, q) {
             if (!q) return esc(text);
             var re = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
-            return esc(text).replace(re, '<strong class="text-green-600 dark:text-green-400 font-semibold">$1</strong>');
+            return esc(text).replace(re, '<mark class="bg-transparent text-green-600 dark:text-green-400 font-semibold not-italic">$1</mark>');
+        }
+
+        function showDropdown() {
+            searchResults.classList.remove('hidden');
         }
 
         function closeDropdown() {
             searchResults.classList.add('hidden');
-            searchResults.innerHTML = '';
             activeIndex = -1;
+            suggestions = [];
+        }
+
+        function showSkeleton() {
+            var rows = '';
+            for (var i = 0; i < 3; i++) {
+                rows += '<div class="flex items-center gap-3 px-4 py-3">' +
+                    '<div class="skeleton w-4 h-4 rounded flex-shrink-0"></div>' +
+                    '<div class="flex-1 space-y-1.5">' +
+                    '<div class="skeleton h-3.5 rounded w-3/4"></div>' +
+                    '<div class="skeleton h-2.5 rounded w-1/3"></div>' +
+                    '</div></div>';
+            }
+            searchResults.innerHTML = rows;
+            showDropdown();
         }
 
         function renderSuggestions(data, q) {
@@ -71,20 +106,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (data.length === 0) {
                 searchResults.innerHTML =
-                    '<div class="px-4 py-3 text-sm text-gray-400 dark:text-gray-500">' +
-                    'Không tìm thấy kết quả cho "<em>' + esc(q) + '</em>"</div>';
-                searchResults.classList.remove('hidden');
+                    '<div class="px-4 py-4 text-sm text-gray-400 dark:text-gray-500 flex items-center gap-2">' +
+                    '<svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+                    '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>' +
+                    'Không tìm thấy "<em class="text-gray-500 dark:text-gray-400">' + esc(q) + '</em>"</div>';
+                showDropdown();
                 return;
             }
 
             var html = data.map(function (item, i) {
                 return '<div role="option" data-idx="' + i + '" data-slug="' + esc(item.slug) + '"' +
-                    ' class="suggest-item flex items-center gap-3 px-4 py-2.5 cursor-pointer' +
-                    ' hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors select-none">' +
-                    '<svg class="w-4 h-4 flex-shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+                    ' class="suggest-item flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors select-none">' +
+                    '<svg class="w-4 h-4 flex-shrink-0 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
                     '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>' +
                     '<div class="flex-1 min-w-0">' +
-                    '<p class="text-sm text-gray-900 dark:text-white truncate">' + highlight(item.name, q) + '</p>' +
+                    '<p class="text-sm text-gray-900 dark:text-gray-100 truncate leading-snug">' + highlight(item.name, q) + '</p>' +
                     '<p class="text-xs text-gray-400 dark:text-gray-500 truncate">' + esc(item.brand) + '</p>' +
                     '</div>' +
                     '<svg class="w-3.5 h-3.5 flex-shrink-0 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
@@ -93,31 +129,39 @@ document.addEventListener('DOMContentLoaded', function () {
             }).join('');
 
             html += '<a href="/search?q=' + encodeURIComponent(q) + '"' +
-                ' class="flex items-center gap-2 px-4 py-2.5 text-sm text-green-600 dark:text-green-400 font-semibold' +
-                ' hover:bg-green-50 dark:hover:bg-green-900/20 border-t border-gray-100 dark:border-gray-700 transition-colors">' +
-                '<svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
-                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>' +
-                'Xem tất cả kết quả cho "<strong>' + esc(q) + '</strong>"</a>';
+                ' class="flex items-center justify-between gap-2 px-4 py-2.5 border-t border-gray-100 dark:border-gray-700' +
+                ' hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors group">' +
+                '<span class="text-sm text-green-600 dark:text-green-400 font-medium truncate">' +
+                'Xem tất cả "<span class="font-semibold">' + esc(q) + '</span>"</span>' +
+                '<svg class="w-4 h-4 flex-shrink-0 text-green-500 dark:text-green-400 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>' +
+                '</a>';
 
             searchResults.innerHTML = html;
-            searchResults.classList.remove('hidden');
+            showDropdown();
 
             searchResults.querySelectorAll('.suggest-item').forEach(function (el) {
                 el.addEventListener('mousedown', function (e) {
                     e.preventDefault();
                     window.location.href = '/vot-cau-long/' + el.dataset.slug;
                 });
+                el.addEventListener('mouseenter', function () {
+                    searchResults.querySelectorAll('.suggest-item').forEach(function (x) { x.classList.remove('active'); });
+                    el.classList.add('active');
+                    activeIndex = parseInt(el.dataset.idx);
+                });
+                el.addEventListener('mouseleave', function () {
+                    el.classList.remove('active');
+                });
             });
         }
 
         function setActive(idx) {
             var items = searchResults.querySelectorAll('.suggest-item');
-            items.forEach(function (el) {
-                el.classList.remove('bg-gray-50', 'dark:bg-gray-700');
-            });
+            items.forEach(function (el) { el.classList.remove('active'); });
             activeIndex = idx;
             if (idx >= 0 && idx < items.length) {
-                items[idx].classList.add('bg-gray-50', 'dark:bg-gray-700');
+                items[idx].classList.add('active');
                 navSearch.value = suggestions[idx].name;
             } else {
                 navSearch.value = origValue;
@@ -128,15 +172,22 @@ document.addEventListener('DOMContentLoaded', function () {
             var q = this.value.trim();
             origValue = this.value;
             activeIndex = -1;
+            currentQ = q;
             if (searchClear) searchClear.classList.toggle('hidden', q.length === 0);
             clearTimeout(searchTimeout);
             if (q.length < 1) { closeDropdown(); return; }
+
+            showSkeleton();
+
             searchTimeout = setTimeout(function () {
-                fetch('/suggest?q=' + encodeURIComponent(q))
+                var fetchQ = q;
+                fetch('/suggest?q=' + encodeURIComponent(fetchQ))
                     .then(function (r) { return r.json(); })
-                    .then(function (data) { renderSuggestions(data, q); })
-                    .catch(function () { closeDropdown(); });
-            }, 160);
+                    .then(function (data) {
+                        if (fetchQ === currentQ) renderSuggestions(data, fetchQ);
+                    })
+                    .catch(function () { if (fetchQ === currentQ) closeDropdown(); });
+            }, 220);
         });
 
         navSearch.addEventListener('keydown', function (e) {
@@ -165,6 +216,7 @@ document.addEventListener('DOMContentLoaded', function () {
             searchClear.addEventListener('click', function () {
                 navSearch.value = '';
                 origValue = '';
+                currentQ = '';
                 searchClear.classList.add('hidden');
                 closeDropdown();
                 navSearch.focus();
