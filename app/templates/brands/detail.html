@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ brand.name }} - Vợt Cầu Lông {{ brand.name }} | CầuLong.com{% endblock %}
+{% block title %}{{ brand.name }} - Vợt Cầu Lông {{ brand.name }} | CầuLông.com{% endblock %}
 {% block meta_description %}Khám phá tất cả vợt cầu lông {{ brand.name }} với đánh giá chi tiết và thông số kỹ thuật đầy đủ.{% endblock %}
 {% block og_title %}{{ brand.name }} - Thương Hiệu Vợt Cầu Lông{% endblock %}
 {% block og_description %}Tất cả vợt cầu lông {{ brand.name }} với đánh giá và thông số chi tiết.{% endblock %}
@@ -9,7 +9,7 @@
 <!-- Brand Banner -->
 <div class="relative bg-gradient-to-br from-green-700 to-emerald-900 text-white overflow-hidden">
     {% if brand.banner_image %}
-    <img src="{{ url_for('static', filename='uploads/' + brand.banner_image) }}" alt="{{ brand.name }}" class="absolute inset-0 w-full h-full object-cover opacity-20">
+    <img src="{{ url_for('main.uploaded_file', filename=brand.banner_image) }}" alt="{{ brand.name }}" class="absolute inset-0 w-full h-full object-cover opacity-20">
     {% endif %}
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <nav class="flex items-center gap-2 text-sm text-green-200 mb-6">
@@ -22,7 +22,7 @@
         <div class="flex items-center gap-6">
             <div class="w-24 h-24 bg-white rounded-2xl shadow-lg flex items-center justify-center overflow-hidden flex-shrink-0">
                 {% if brand.logo %}
-                <img src="{{ url_for('static', filename='uploads/' + brand.logo) }}" alt="{{ brand.name }}" class="w-full h-full object-contain p-2">
+                <img src="{{ url_for('main.uploaded_file', filename=brand.logo) }}" alt="{{ brand.name }}" class="w-full h-full object-contain p-2">
                 {% else %}
                 <span class="text-4xl font-extrabold text-green-700">{{ brand.name[0] }}</span>
                 {% endif %}
@@ -55,7 +55,7 @@
             <a href="{{ url_for('rackets.racket_detail', slug=racket.slug) }}">
                 <div class="relative h-48 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 overflow-hidden">
                     {% if racket.primary_image %}
-                    <img src="{{ url_for('static', filename='uploads/' + racket.primary_image.filename) }}" alt="{{ racket.name }}"
+                    <img src="{{ url_for('main.uploaded_file', filename=racket.primary_image.filename) }}" alt="{{ racket.name }}"
                         class="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300">
                     {% else %}
                     <div class="w-full h-full flex items-center justify-center text-gray-300 dark:text-gray-500">

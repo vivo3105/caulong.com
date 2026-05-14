@@ -426,4 +426,4 @@ def upload_image():
     fname = save_image(f)
     if not fname:
         return jsonify({'error': 'Định dạng file không được hỗ trợ.'}), 400
-    return jsonify({'filename': fname, 'url': f'/static/uploads/{fname}'})
+    return jsonify({'filename': fname, 'url': f'/media/{fname}'})

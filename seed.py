@@ -1,5 +1,5 @@
 """
-Seed script for CầuLong.com
+Seed script for CầuLông.com
 Run: python seed.py
 Also importable: from seed import seed_all; seed_all()
 """
@@ -495,8 +495,8 @@ def seed_all():
                 string_tension_max=rd.get('string_tension_max'),
                 length_mm=rd.get('length_mm', 675),
                 is_featured=rd.get('is_featured', False),
-                meta_title=rd['name'] + ' - ' + rd['brand'] + ' | CầuLong.com',
-                meta_description='Đánh giá chi tiết ' + rd['name'] + ' của ' + rd['brand'] + '. Xem thông số kỹ thuật, ưu nhược điểm và giá bán tại CầuLong.com.',
+                meta_title=rd['name'] + ' - ' + rd['brand'] + ' | CầuLông.com',
+                meta_description='Đánh giá chi tiết ' + rd['name'] + ' của ' + rd['brand'] + '. Xem thông số kỹ thuật, ưu nhược điểm và giá bán tại CầuLông.com.',
             )
             for tag_name in rd.get('tags', []):
                 tag = tags.get(tag_name)
@@ -542,7 +542,7 @@ def seed_all():
 <li>Cán từ trung bình đến mềm</li>
 </ul>
 <p>Đừng đầu tư quá nhiều vào vợt khi mới bắt đầu - hãy tập trung vào kỹ thuật cơ bản trước!</p>''',
-            'meta_title': 'Hướng Dẫn Chọn Vợt Cầu Lông Cho Người Mới | CầuLong.com',
+            'meta_title': 'Hướng Dẫn Chọn Vợt Cầu Lông Cho Người Mới | CầuLông.com',
             'meta_description': 'Tìm hiểu cách chọn vợt cầu lông phù hợp khi mới bắt đầu. Hướng dẫn chi tiết về trọng lượng, cân bằng và độ cứng cán.',
             'is_published': True,
         },
@@ -578,7 +578,7 @@ def seed_all():
 
 <h2>Kết Luận</h2>
 <p>Cả hai thương hiệu đều xuất sắc. Nếu ngân sách là ưu tiên, Victor có nhiều lựa chọn tốt ở tầm giá thấp hơn. Nếu bạn muốn vợt được nhiều VĐV thế giới sử dụng nhất, Yonex là lựa chọn an toàn.</p>''',
-            'meta_title': 'Yonex vs Victor: Thương Hiệu Nào Tốt Hơn 2024? | CầuLong.com',
+            'meta_title': 'Yonex vs Victor: Thương Hiệu Nào Tốt Hơn 2024? | CầuLông.com',
             'meta_description': 'So sánh chi tiết Yonex và Victor - hai thương hiệu vợt cầu lông hàng đầu thế giới. Tìm hiểu ưu nhược điểm của từng hãng.',
             'is_published': True,
         },
@@ -620,7 +620,7 @@ def seed_all():
 
 <h2>Tần Suất Căng Lại</h2>
 <p>Dây cầu lông mất độ căng theo thời gian. Người chơi thường xuyên (3-4 buổi/tuần) nên căng lại mỗi 2-3 tháng. Ngay cả khi không chơi, dây vẫn giảm căng khoảng 10% sau mỗi 3 tháng.</p>''',
-            'meta_title': 'Lực Căng Dây Cầu Lông Bao Nhiêu Là Phù Hợp? | CầuLong.com',
+            'meta_title': 'Lực Căng Dây Cầu Lông Bao Nhiêu Là Phù Hợp? | CầuLông.com',
             'meta_description': 'Tìm hiểu về lực căng dây cầu lông - căng bao nhiêu lbs là phù hợp với trình độ của bạn? Hướng dẫn chi tiết từ người mới đến chuyên nghiệp.',
             'is_published': True,
         },
@@ -663,7 +663,7 @@ def seed_all():
 
 <h2>Kết Luận</h2>
 <p>Không có một cây vợt nào là "tốt nhất" cho tất cả mọi người. Hãy chọn vợt phù hợp với trình độ và phong cách chơi của bạn!</p>''',
-            'meta_title': 'Top 10 Vợt Cầu Lông Tốt Nhất 2024 | CầuLong.com',
+            'meta_title': 'Top 10 Vợt Cầu Lông Tốt Nhất 2024 | CầuLông.com',
             'meta_description': 'Danh sách 10 vợt cầu lông tốt nhất năm 2024 từ Yonex, Victor, Li-Ning và các thương hiệu hàng đầu. Đánh giá chi tiết và xếp hạng.',
             'is_published': True,
         },
@@ -699,7 +699,7 @@ def seed_all():
 
 <h2>Bảo Quản Dài Hạn</h2>
 <p>Nếu không chơi trong thời gian dài, nên nới lỏng lực căng dây để giảm áp lực lên khung. Bảo quản ở nơi khô ráo, thoáng mát.</p>''',
-            'meta_title': 'Cách Bảo Quản Vợt Cầu Lông Đúng Cách | CầuLong.com',
+            'meta_title': 'Cách Bảo Quản Vợt Cầu Lông Đúng Cách | CầuLông.com',
             'meta_description': 'Hướng dẫn bảo quản vợt cầu lông đúng cách để duy trì hiệu suất và kéo dài tuổi thọ của vợt.',
             'is_published': True,
         },

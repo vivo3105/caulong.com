@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
-{% block title %}Tin Tức & Bài Viết Cầu Lông | CầuLong.com{% endblock %}
-{% block meta_description %}Đọc các bài viết hướng dẫn, đánh giá vợt, mẹo chọn vợt và tin tức cầu lông mới nhất tại CầuLong.com.{% endblock %}
+{% block title %}Tin Tức & Bài Viết Cầu Lông | CầuLông.com{% endblock %}
+{% block meta_description %}Đọc các bài viết hướng dẫn, đánh giá vợt, mẹo chọn vợt và tin tức cầu lông mới nhất tại CầuLông.com.{% endblock %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -24,7 +24,7 @@
             <a href="{{ url_for('blog.post_detail', slug=post.slug) }}">
                 <div class="h-52 bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/30 dark:to-emerald-800/30 overflow-hidden">
                     {% if post.featured_image %}
-                    <img src="{{ url_for('static', filename='uploads/' + post.featured_image) }}"
+                    <img src="{{ url_for('main.uploaded_file', filename=post.featured_image) }}"
                         alt="{{ post.title }}"
                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                     {% else %}

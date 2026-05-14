@@ -68,7 +68,7 @@
                 <h3 class="font-bold text-gray-900 dark:text-white mb-4">Ảnh Đại Diện</h3>
                 {% if post and post.featured_image %}
                 <div class="mb-3 rounded-lg overflow-hidden">
-                    <img src="{{ url_for('static', filename='uploads/' + post.featured_image) }}" alt="" class="w-full h-32 object-cover">
+                    <img src="{{ url_for('main.uploaded_file', filename=post.featured_image) }}" alt="" class="w-full h-32 object-cover">
                 </div>
                 <p class="text-xs text-gray-400 dark:text-gray-500 mb-3">Upload ảnh mới để thay thế.</p>
                 {% endif %}

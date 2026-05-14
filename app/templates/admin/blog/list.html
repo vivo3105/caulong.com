@@ -29,7 +29,7 @@
                     <div class="flex items-center gap-3">
                         {% if post.featured_image %}
                         <div class="w-12 h-10 flex-shrink-0 rounded overflow-hidden">
-                            <img src="{{ url_for('static', filename='uploads/' + post.featured_image) }}" alt="" class="w-full h-full object-cover">
+                            <img src="{{ url_for('main.uploaded_file', filename=post.featured_image) }}" alt="" class="w-full h-full object-cover">
                         </div>
                         {% endif %}
                         <div>
