@@ -69,11 +69,15 @@ def create_app(config_class=Config):
 
 
 def _auto_seed():
-    """Seed database automatically if it has no data."""
+    """Seed database automatically if it has no brands."""
     from app.models import Brand
     try:
-        if Brand.query.count() == 0:
-            import subprocess, sys
-            subprocess.run([sys.executable, 'seed.py'], check=True)
-    except Exception:
-        pass
+        if Brand.query.count() > 0:
+            return
+        # Import seed functions directly to avoid subprocess issues on Azure
+        from seed import seed_all
+        seed_all()
+    except Exception as e:
+        import traceback
+        print(f"[auto-seed] Warning: {e}")
+        traceback.print_exc()
