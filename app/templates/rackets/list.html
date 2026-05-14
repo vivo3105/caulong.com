@@ -1,0 +1,275 @@
+{% extends "base.html" %}
+
+{% block title %}Vợt Cầu Lông - Tất Cả Mẫu Vợt Chính Hãng | CầuLong.com{% endblock %}
+{% block meta_description %}Khám phá danh sách vợt cầu lông chính hãng Yonex, Victor, Li-Ning với đầy đủ thông số kỹ thuật và đánh giá chi tiết.{% endblock %}
+
+{# Pagination is rendered inline below #}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-6">
+        <a href="{{ url_for('main.index') }}" class="hover:text-green-600">Trang Chủ</a>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        <span class="text-gray-900 dark:text-white font-medium">Vợt Cầu Lông</span>
+    </nav>
+
+    <div class="flex gap-8">
+        <!-- Sidebar Filters -->
+        <aside class="w-64 flex-shrink-0 hidden lg:block">
+            <form method="GET" id="filter-form">
+                <div class="space-y-6">
+                    <!-- Brand Filter -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm">
+                        <h3 class="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                            <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
+                            Thương Hiệu
+                        </h3>
+                        <div class="space-y-2">
+                            {% for brand in all_brands %}
+                            <label class="flex items-center gap-2 cursor-pointer group">
+                                <input type="checkbox" name="brand" value="{{ brand.slug }}"
+                                    {{ 'checked' if brand.slug in selected_brands }}
+                                    class="w-4 h-4 text-green-600 rounded border-gray-300 focus:ring-green-500"
+                                    onchange="this.form.submit()">
+                                <span class="text-sm text-gray-700 dark:text-gray-300 group-hover:text-green-600 dark:group-hover:text-green-400">{{ brand.name }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Weight Class -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm">
+                        <h3 class="font-bold text-gray-900 dark:text-white mb-4">Cân Nặng</h3>
+                        <div class="space-y-2">
+                            {% for wc in ['3U', '4U', '5U'] %}
+                            <label class="flex items-center gap-2 cursor-pointer group">
+                                <input type="checkbox" name="weight_class" value="{{ wc }}"
+                                    {{ 'checked' if wc in selected_weight }}
+                                    class="w-4 h-4 text-green-600 rounded border-gray-300 focus:ring-green-500"
+                                    onchange="this.form.submit()">
+                                <span class="text-sm text-gray-700 dark:text-gray-300 group-hover:text-green-600">{{ wc }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Balance Type -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm">
+                        <h3 class="font-bold text-gray-900 dark:text-white mb-4">Loại Cân Bằng</h3>
+                        <div class="space-y-2">
+                            {% for bt, label in [('head_heavy', 'Nặng đầu'), ('even', 'Cân bằng'), ('head_light', 'Nhẹ đầu')] %}
+                            <label class="flex items-center gap-2 cursor-pointer group">
+                                <input type="checkbox" name="balance_type" value="{{ bt }}"
+                                    {{ 'checked' if bt in selected_balance }}
+                                    class="w-4 h-4 text-green-600 rounded border-gray-300 focus:ring-green-500"
+                                    onchange="this.form.submit()">
+                                <span class="text-sm text-gray-700 dark:text-gray-300 group-hover:text-green-600">{{ label }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Flexibility -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm">
+                        <h3 class="font-bold text-gray-900 dark:text-white mb-4">Độ Cứng Cán</h3>
+                        <div class="space-y-2">
+                            {% for fl, label in [('extra_stiff', 'Siêu cứng'), ('stiff', 'Cứng'), ('medium', 'Trung bình'), ('flexible', 'Mềm'), ('extra_flexible', 'Siêu mềm')] %}
+                            <label class="flex items-center gap-2 cursor-pointer group">
+                                <input type="checkbox" name="flexibility" value="{{ fl }}"
+                                    {{ 'checked' if fl in selected_flexibility }}
+                                    class="w-4 h-4 text-green-600 rounded border-gray-300 focus:ring-green-500"
+                                    onchange="this.form.submit()">
+                                <span class="text-sm text-gray-700 dark:text-gray-300 group-hover:text-green-600">{{ label }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Skill Level -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm">
+                        <h3 class="font-bold text-gray-900 dark:text-white mb-4">Trình Độ</h3>
+                        <div class="space-y-2">
+                            {% for sl, label in [('beginner', 'Người mới'), ('intermediate', 'Trung cấp'), ('advanced', 'Nâng cao'), ('professional', 'Chuyên nghiệp')] %}
+                            <label class="flex items-center gap-2 cursor-pointer group">
+                                <input type="checkbox" name="skill_level" value="{{ sl }}"
+                                    {{ 'checked' if sl in selected_skill }}
+                                    class="w-4 h-4 text-green-600 rounded border-gray-300 focus:ring-green-500"
+                                    onchange="this.form.submit()">
+                                <span class="text-sm text-gray-700 dark:text-gray-300 group-hover:text-green-600">{{ label }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Price Range -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm">
+                        <h3 class="font-bold text-gray-900 dark:text-white mb-4">Khoảng Giá (₫)</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="text-xs text-gray-500 dark:text-gray-400">Từ</label>
+                                <input type="number" name="price_min" value="{{ price_min or '' }}" placeholder="0"
+                                    class="mt-1 w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500">
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-500 dark:text-gray-400">Đến</label>
+                                <input type="number" name="price_max" value="{{ price_max or '' }}" placeholder="10,000,000"
+                                    class="mt-1 w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500">
+                            </div>
+                            <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white text-sm font-semibold py-2 rounded-lg transition-colors">
+                                Áp Dụng
+                            </button>
+                        </div>
+                    </div>
+
+                    <a href="{{ url_for('rackets.list_rackets') }}" class="block w-full text-center text-sm text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 py-2">
+                        Xóa tất cả bộ lọc
+                    </a>
+                </div>
+            </form>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="flex-1 min-w-0">
+            <!-- Header + Sort -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Tất Cả Vợt Cầu Lông</h1>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ pagination.total }} kết quả</p>
+                </div>
+                <form method="GET" class="flex items-center gap-3">
+                    {% for key in request.args %}
+                        {% if key != 'sort' and key != 'page' %}
+                            {% for val in request.args.getlist(key) %}
+                            <input type="hidden" name="{{ key }}" value="{{ val }}">
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+                    <label class="text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">Sắp xếp:</label>
+                    <select name="sort" onchange="this.form.submit()"
+                        class="text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <option value="popular" {{ 'selected' if current_sort == 'popular' }}>Phổ biến nhất</option>
+                        <option value="newest" {{ 'selected' if current_sort == 'newest' }}>Mới nhất</option>
+                        <option value="price_asc" {{ 'selected' if current_sort == 'price_asc' }}>Giá tăng dần</option>
+                        <option value="price_desc" {{ 'selected' if current_sort == 'price_desc' }}>Giá giảm dần</option>
+                        <option value="name" {{ 'selected' if current_sort == 'name' }}>Tên A-Z</option>
+                    </select>
+                </form>
+            </div>
+
+            <!-- Active Filters -->
+            {% if active_filters %}
+            <div class="flex flex-wrap gap-2 mb-6">
+                {% for f in active_filters %}
+                <a href="{{ request.url | replace('&' + f.type + '=' + f.value, '') | replace('?' + f.type + '=' + f.value + '&', '?') | replace('?' + f.type + '=' + f.value, '') }}"
+                    class="inline-flex items-center gap-1.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-sm px-3 py-1 rounded-full hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400 transition-colors">
+                    {{ f.label }}
+                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                </a>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Racket Grid -->
+            {% if rackets %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                {% for racket in rackets %}
+                <div class="card group overflow-hidden">
+                    <a href="{{ url_for('rackets.racket_detail', slug=racket.slug) }}">
+                        <div class="relative h-52 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 overflow-hidden">
+                            {% if racket.primary_image %}
+                            <img src="{{ url_for('static', filename='uploads/' + racket.primary_image.filename) }}"
+                                alt="{{ racket.name }}"
+                                class="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-300">
+                            {% else %}
+                            <div class="w-full h-full flex items-center justify-center">
+                                <svg class="w-16 h-16 text-gray-300 dark:text-gray-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>
+                            </div>
+                            {% endif %}
+                            <div class="absolute top-3 left-3">
+                                <span class="badge text-xs
+                                    {% if racket.skill_level == 'beginner' %}bg-blue-100 text-blue-700
+                                    {% elif racket.skill_level == 'intermediate' %}bg-yellow-100 text-yellow-700
+                                    {% elif racket.skill_level == 'advanced' %}bg-orange-100 text-orange-700
+                                    {% else %}bg-red-100 text-red-700{% endif %}">
+                                    {{ racket.skill_level_display }}
+                                </span>
+                            </div>
+                        </div>
+                    </a>
+                    <div class="p-4">
+                        <p class="text-xs text-green-600 dark:text-green-400 font-semibold uppercase tracking-wide mb-1">{{ racket.brand.name }}</p>
+                        <a href="{{ url_for('rackets.racket_detail', slug=racket.slug) }}">
+                            <h3 class="font-bold text-gray-900 dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors line-clamp-2 mb-2 text-sm">{{ racket.name }}</h3>
+                        </a>
+                        <div class="flex items-center gap-1 mb-3">
+                            {% set avg = racket.average_rating %}
+                            {% for i in range(5) %}
+                            <svg class="w-3.5 h-3.5 {{ 'text-yellow-400' if i < avg|int else 'text-gray-300 dark:text-gray-600' }}" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                            </svg>
+                            {% endfor %}
+                            <span class="text-xs text-gray-400 ml-0.5">({{ racket.review_count }})</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                {% if racket.price %}
+                                <span class="font-bold text-green-600 dark:text-green-400">{{ "{:,.0f}".format(racket.price) }}₫</span>
+                                {% else %}
+                                <span class="text-gray-400 text-sm">Liên hệ</span>
+                                {% endif %}
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <span class="text-xs text-gray-400">{{ racket.weight_class or '' }}</span>
+                                <button onclick="toggleCompare({{ racket.id }}, '{{ racket.name }}')"
+                                    class="p-1.5 rounded-lg text-gray-400 hover:text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30 transition-colors"
+                                    title="Thêm vào so sánh" id="compare-btn-{{ racket.id }}">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% set args = request.args.to_dict(flat=False) %}
+            {% if pagination.pages > 1 %}
+            <div class="flex items-center justify-center gap-1 mt-10">
+                {% if pagination.has_prev %}
+                <a href="?{{ request.query_string.decode().replace('page=' + (pagination.page|string), 'page=' + (pagination.prev_num|string)) }}" class="px-3 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 text-sm">&laquo;</a>
+                {% endif %}
+                {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                    {% if page_num %}
+                        {% if page_num == pagination.page %}
+                        <span class="px-3 py-2 rounded-lg bg-green-600 text-white text-sm font-semibold">{{ page_num }}</span>
+                        {% else %}
+                        <a href="?{{ request.query_string.decode().replace('page=' + (pagination.page|string), 'page=' + (page_num|string)) if 'page=' in request.query_string.decode() else request.query_string.decode() + '&page=' + (page_num|string) }}" class="px-3 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 text-sm">{{ page_num }}</a>
+                        {% endif %}
+                    {% else %}
+                    <span class="px-2 py-2 text-gray-400">…</span>
+                    {% endif %}
+                {% endfor %}
+                {% if pagination.has_next %}
+                <a href="?{{ request.query_string.decode().replace('page=' + (pagination.page|string), 'page=' + (pagination.next_num|string)) if 'page=' in request.query_string.decode() else request.query_string.decode() + '&page=' + (pagination.next_num|string) }}" class="px-3 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 text-sm">&raquo;</a>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            {% else %}
+            <div class="text-center py-20">
+                <svg class="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <h3 class="text-xl font-semibold text-gray-500 dark:text-gray-400 mb-2">Không tìm thấy vợt phù hợp</h3>
+                <p class="text-gray-400 dark:text-gray-500 mb-6">Thử điều chỉnh bộ lọc hoặc xem tất cả vợt.</p>
+                <a href="{{ url_for('rackets.list_rackets') }}" class="btn-primary">Xóa Bộ Lọc</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Kết quả tìm kiếm: {{ query }} - CầuLong.com{% endblock %}
+{% block meta_description %}Kết quả tìm kiếm cho "{{ query }}" trên CầuLong.com{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+        Kết quả tìm kiếm{% if query %}: <span class="text-green-600">"{{ query }}"</span>{% endif %}
+    </h1>
+    <p class="text-gray-500 dark:text-gray-400 mb-8">Tìm thấy {{ results|length }} kết quả</p>
+
+    {% if results %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {% for r in results %}
+        <div class="card overflow-hidden group">
+            <a href="{{ url_for('rackets.racket_detail', slug=r.slug) }}">
+                <div class="h-48 bg-gray-100 dark:bg-gray-700 overflow-hidden">
+                    {% if r.image_url != '/static/img/placeholder.png' %}
+                    <img src="{{ r.image_url }}" alt="{{ r.name }}" class="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300">
+                    {% else %}
+                    <div class="w-full h-full flex items-center justify-center text-gray-300 dark:text-gray-500">
+                        <svg class="w-16 h-16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>
+                    </div>
+                    {% endif %}
+                </div>
+            </a>
+            <div class="p-4">
+                <p class="text-xs text-green-600 dark:text-green-400 font-semibold mb-1">{{ r.brand }}</p>
+                <a href="{{ url_for('rackets.racket_detail', slug=r.slug) }}">
+                    <h3 class="font-bold text-gray-900 dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors mb-2">{{ r.name }}</h3>
+                </a>
+                <div class="flex items-center justify-between">
+                    {% if r.price %}<span class="text-green-600 dark:text-green-400 font-bold">{{ "{:,.0f}".format(r.price) }}₫</span>{% endif %}
+                    <span class="badge bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400">{{ r.skill_level }}</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-20">
+        <svg class="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <h3 class="text-xl font-semibold text-gray-500 dark:text-gray-400 mb-2">Không tìm thấy kết quả</h3>
+        <p class="text-gray-400 dark:text-gray-500 mb-6">Thử tìm kiếm với từ khóa khác hoặc duyệt tất cả vợt.</p>
+        <a href="{{ url_for('rackets.list_rackets') }}" class="btn-primary">Xem Tất Cả Vợt</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

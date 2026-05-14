@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import Flask, render_template
 from config import Config
 from app.extensions import db, login_manager, csrf
@@ -25,10 +26,10 @@ def create_app(config_class=Config):
 
     # Context processors
     @app.context_processor
-    def inject_brands():
+    def inject_globals():
         from app.models import Brand
         brands = Brand.query.order_by(Brand.name).all()
-        return dict(nav_brands=brands)
+        return dict(nav_brands=brands, now=datetime.utcnow())
 
     # Register blueprints
     from app.blueprints.main import main_bp

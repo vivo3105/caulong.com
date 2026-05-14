@@ -1,6 +1,7 @@
 from flask import render_template, request, abort
+from sqlalchemy import text
 from app.blueprints.rackets import rackets_bp
-from app.models import Racket, Brand
+from app.models import Racket, Brand, RacketImage
 from app.extensions import db
 
 
@@ -104,8 +105,9 @@ def racket_detail(slug):
         )
     ).order_by(Racket.view_count.desc()).limit(4).all()
 
-    images = racket.images.order_by('order').all()
-    reviews = racket.reviews.order_by('created_at desc').all()
+    images = racket.images.order_by(RacketImage.order).all()
+    from app.models import Review
+    reviews = racket.reviews.order_by(text('reviews.created_at desc')).all()
 
     return render_template('rackets/detail.html',
                            racket=racket,
