@@ -9,7 +9,7 @@ from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 from app.blueprints.admin import admin_bp
 from app.models import Racket, Brand, BlogPost, Review, User, RacketImage, generate_slug
-from app.extensions import db
+from app.extensions import db, csrf
 
 try:
     from PIL import Image
@@ -240,6 +240,46 @@ def racket_delete(id):
     db.session.commit()
     flash(f'Đã xóa vợt "{name}".', 'success')
     return redirect(url_for('admin.rackets_list'))
+
+
+@admin_bp.route('/rackets/images/<int:image_id>/xoa', methods=['POST'])
+@csrf.exempt
+@admin_required
+def racket_image_delete(image_id):
+    img = RacketImage.query.get_or_404(image_id)
+    racket_id = img.racket_id
+    was_primary = img.is_primary
+
+    # Delete file from disk
+    try:
+        filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], img.filename)
+        if os.path.exists(filepath):
+            os.remove(filepath)
+    except Exception:
+        pass
+
+    db.session.delete(img)
+    db.session.flush()
+
+    # Reassign primary to first remaining image
+    if was_primary:
+        first = RacketImage.query.filter_by(racket_id=racket_id).order_by(RacketImage.order).first()
+        if first:
+            first.is_primary = True
+
+    db.session.commit()
+    return jsonify({'ok': True})
+
+
+@admin_bp.route('/rackets/images/<int:image_id>/set-primary', methods=['POST'])
+@csrf.exempt
+@admin_required
+def racket_image_set_primary(image_id):
+    img = RacketImage.query.get_or_404(image_id)
+    RacketImage.query.filter_by(racket_id=img.racket_id).update({'is_primary': False})
+    img.is_primary = True
+    db.session.commit()
+    return jsonify({'ok': True})
 
 
 # ─── Brands ──────────────────────────────────────────────────────────────────

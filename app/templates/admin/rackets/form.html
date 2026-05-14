@@ -107,7 +107,7 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Độ Cứng Cán (Flexibility)</label>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Độ Cứng (Flexibility)</label>
                         <select name="flexibility"
                             class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500">
                             <option value="">-- Chọn --</option>
@@ -168,13 +168,39 @@
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                 <h3 class="font-bold text-gray-900 dark:text-white mb-5 pb-3 border-b border-gray-100 dark:border-gray-700">Hình Ảnh</h3>
                 {% if racket and racket.images.count() > 0 %}
-                <div class="flex flex-wrap gap-3 mb-4">
+                <div class="flex flex-wrap gap-3 mb-4" id="image-grid">
                     {% for img in racket.images.all() %}
-                    <div class="relative w-24 h-24 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700">
-                        <img src="{{ url_for('main.uploaded_file', filename=img.filename) }}" alt="" class="w-full h-full object-contain p-1">
-                        {% if img.is_primary %}
-                        <div class="absolute bottom-0 left-0 right-0 bg-green-600 text-white text-xs text-center py-0.5">Chính</div>
-                        {% endif %}
+                    <div class="relative w-28 h-28 rounded-xl border-2 bg-gray-100 dark:bg-gray-700 group
+                        {{ 'border-green-500' if img.is_primary else 'border-gray-200 dark:border-gray-600' }}"
+                        id="img-card-{{ img.id }}">
+                        <img src="{{ url_for('main.uploaded_file', filename=img.filename) }}" alt="" class="w-full h-full object-contain p-1 rounded-xl">
+
+                        <!-- Primary badge -->
+                        <div id="primary-badge-{{ img.id }}"
+                            class="absolute bottom-0 left-0 right-0 text-white text-xs text-center py-0.5 rounded-b-xl
+                            {{ 'bg-green-600' if img.is_primary else 'hidden bg-gray-500' }}">
+                            {{ 'Ảnh chính' if img.is_primary else 'Đặt chính' }}
+                        </div>
+
+                        <!-- Action buttons (shown on hover) -->
+                        <div class="absolute inset-0 bg-black/40 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                            {% if not img.is_primary %}
+                            <button type="button" title="Đặt làm ảnh chính"
+                                onclick="setPrimary({{ img.id }}, {{ racket.id }})"
+                                class="w-8 h-8 bg-green-600 hover:bg-green-700 text-white rounded-lg flex items-center justify-center transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                            </button>
+                            {% endif %}
+                            <button type="button" title="Xóa ảnh"
+                                onclick="deleteImage({{ img.id }})"
+                                class="w-8 h-8 bg-red-600 hover:bg-red-700 text-white rounded-lg flex items-center justify-center transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                     {% endfor %}
                 </div>
@@ -238,4 +264,61 @@
         </div>
     </div>
 </form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function deleteImage(imageId) {
+    if (!confirm('Xóa ảnh này?')) return;
+    fetch('/admin/rackets/images/' + imageId + '/xoa', { method: 'POST', headers: { 'X-CSRFToken': getCsrf() } })
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+            if (d.ok) {
+                var card = document.getElementById('img-card-' + imageId);
+                if (card) card.remove();
+            } else {
+                alert('Xóa thất bại.');
+            }
+        })
+        .catch(function() { alert('Lỗi kết nối.'); });
+}
+
+function setPrimary(imageId, racketId) {
+    fetch('/admin/rackets/images/' + imageId + '/set-primary', { method: 'POST', headers: { 'X-CSRFToken': getCsrf() } })
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+            if (d.ok) {
+                // Reset all cards to non-primary style
+                document.querySelectorAll('[id^="img-card-"]').forEach(function(c) {
+                    c.classList.remove('border-green-500');
+                    c.classList.add('border-gray-200', 'dark:border-gray-600');
+                });
+                document.querySelectorAll('[id^="primary-badge-"]').forEach(function(b) {
+                    b.classList.add('hidden');
+                });
+                // Highlight selected card
+                var card = document.getElementById('img-card-' + imageId);
+                if (card) {
+                    card.classList.add('border-green-500');
+                    card.classList.remove('border-gray-200', 'dark:border-gray-600');
+                }
+                var badge = document.getElementById('primary-badge-' + imageId);
+                if (badge) {
+                    badge.classList.remove('hidden');
+                    badge.textContent = 'Ảnh chính';
+                    badge.classList.add('bg-green-600');
+                    badge.classList.remove('bg-gray-500');
+                }
+            }
+        })
+        .catch(function() { alert('Lỗi kết nối.'); });
+}
+
+function getCsrf() {
+    var m = document.cookie.match(/csrf_token=([^;]+)/);
+    if (m) return decodeURIComponent(m[1]);
+    var meta = document.querySelector('meta[name="csrf-token"]');
+    return meta ? meta.content : '';
+}
+</script>
 {% endblock %}

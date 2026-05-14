@@ -10,7 +10,7 @@
     ('Cân Nặng',      'weight_class'),
     ('Cỡ Cán',        'grip_sizes'),
     ('Cân Bằng',      'balance_type'),
-    ('Độ Cứng Cán',   'flexibility'),
+    ('Độ Cứng',   'flexibility'),
     ('Lực Căng Dây',  'tension'),
     ('Vật Liệu Khung','frame_material'),
     ('Vật Liệu Cán',  'shaft_material'),
@@ -70,7 +70,7 @@
             ('Trình Độ', 'skill'),
             ('Cân Nặng', 'weight'),
             ('Cân Bằng', 'balance'),
-            ('Độ Cứng Cán', 'flex'),
+            ('Độ Cứng', 'flex'),
             ('Lực Căng', 'tension'),
             ('Khung', 'frame'),
             ('Cán', 'shaft'),
@@ -221,7 +221,7 @@
                     {% for racket in rackets %}<td class="px-6 py-4 text-center text-gray-800 dark:text-gray-200">{{ racket.balance_type_display }}</td>{% endfor %}
                 </tr>
                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30">
-                    {{ td_label('Độ Cứng Cán') }}
+                    {{ td_label('Độ Cứng') }}
                     {% for racket in rackets %}<td class="px-6 py-4 text-center text-gray-800 dark:text-gray-200">{{ racket.flexibility_display }}</td>{% endfor %}
                 </tr>
                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30">
