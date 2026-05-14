@@ -202,13 +202,20 @@ function updateCompareUI() {
     }
 }
 
-// Auto-populate compare from URL if on compare page
+// Auto-redirect compare page from localStorage if no URL params
 (function () {
     if (window.location.pathname === '/so-sanh') {
         const params = new URLSearchParams(window.location.search);
         const ids = params.getAll('id');
-        if (ids.length > 0) {
-            // Page is server-rendered with the rackets, don't override localStorage here
+        if (ids.length === 0) {
+            // Opened without URL params (e.g. nav link) — redirect using localStorage
+            try {
+                const list = JSON.parse(localStorage.getItem('compareList') || '[]');
+                if (list.length > 0) {
+                    const qs = list.map(function (i) { return 'id=' + i.id; }).join('&');
+                    window.location.replace('/so-sanh?' + qs);
+                }
+            } catch (e) {}
         }
     }
 })();
