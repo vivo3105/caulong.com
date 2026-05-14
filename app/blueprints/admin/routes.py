@@ -2,14 +2,14 @@ import os
 import csv
 import io
 import json
+from datetime import datetime
 from functools import wraps
-from flask import render_template, redirect, url_for, flash, request, current_app, jsonify
+from flask import render_template, redirect, url_for, flash, request, current_app, jsonify, Response
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 from app.blueprints.admin import admin_bp
 from app.models import Racket, Brand, BlogPost, Review, User, RacketImage, generate_slug
 from app.extensions import db
-from datetime import datetime
 
 try:
     from PIL import Image
@@ -576,3 +576,74 @@ def bulk_import():
             flash(err, 'error')
 
     return redirect(url_for('admin.bulk_import'))
+
+
+# ── Export ────────────────────────────────────────────────────────────────────
+
+EXPORT_FIELDS = [
+    'name', 'brand', 'weight_class', 'balance_type', 'flexibility',
+    'frame_material', 'shaft_material', 'skill_level', 'price',
+    'string_tension_min', 'string_tension_max', 'length_mm',
+    'description', 'pros', 'cons', 'playing_style',
+    'is_featured', 'meta_title', 'meta_description',
+]
+
+
+def _racket_to_dict(r):
+    return {
+        'name': r.name,
+        'brand': r.brand.name,
+        'weight_class': r.weight_class or '',
+        'balance_type': r.balance_type or '',
+        'flexibility': r.flexibility or '',
+        'frame_material': r.frame_material or '',
+        'shaft_material': r.shaft_material or '',
+        'skill_level': r.skill_level or '',
+        'price': r.price or '',
+        'string_tension_min': r.string_tension_min or '',
+        'string_tension_max': r.string_tension_max or '',
+        'length_mm': r.length_mm or '',
+        'description': r.description or '',
+        'pros': r.pros or '',
+        'cons': r.cons or '',
+        'playing_style': r.playing_style or '',
+        'is_featured': 'true' if r.is_featured else 'false',
+        'meta_title': r.meta_title or '',
+        'meta_description': r.meta_description or '',
+    }
+
+
+@admin_bp.route('/xuat-du-lieu')
+@admin_required
+def export_rackets():
+    fmt = request.args.get('format', 'csv')
+    brand_id = request.args.get('brand_id', type=int)
+
+    query = Racket.query.join(Brand).order_by(Brand.name, Racket.name)
+    if brand_id:
+        query = query.filter(Racket.brand_id == brand_id)
+    rackets = query.all()
+
+    timestamp = datetime.utcnow().strftime('%Y%m%d_%H%M%S')
+
+    if fmt == 'json':
+        data = [_racket_to_dict(r) for r in rackets]
+        content = json.dumps(data, ensure_ascii=False, indent=2)
+        return Response(
+            content,
+            mimetype='application/json',
+            headers={'Content-Disposition': f'attachment; filename=rackets_{timestamp}.json'}
+        )
+
+    # CSV
+    output = io.StringIO()
+    writer = csv.DictWriter(output, fieldnames=EXPORT_FIELDS)
+    writer.writeheader()
+    for r in rackets:
+        writer.writerow(_racket_to_dict(r))
+
+    return Response(
+        '﻿' + output.getvalue(),  # BOM for Excel UTF-8 compatibility
+        mimetype='text/csv',
+        headers={'Content-Disposition': f'attachment; filename=rackets_{timestamp}.csv'}
+    )
