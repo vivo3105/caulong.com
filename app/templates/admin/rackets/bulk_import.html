@@ -286,11 +286,12 @@ const exportBrand = document.getElementById('export-brand');
 const csvBtn = document.getElementById('export-csv-btn');
 const jsonBtn = document.getElementById('export-json-btn');
 
+const EXPORT_BASE = '{{ url_for("admin.export_rackets") }}';
+
 function updateExportLinks() {
     const bid = exportBrand.value;
-    const qs = bid ? '?format=csv&brand_id=' + bid : '?format=csv';
-    csvBtn.href = qs;
-    jsonBtn.href = qs.replace('format=csv', 'format=json');
+    csvBtn.href  = EXPORT_BASE + '?format=csv'  + (bid ? '&brand_id=' + bid : '');
+    jsonBtn.href = EXPORT_BASE + '?format=json' + (bid ? '&brand_id=' + bid : '');
 }
 exportBrand.addEventListener('change', updateExportLinks);
 updateExportLinks();
