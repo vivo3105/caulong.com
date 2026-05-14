@@ -102,8 +102,6 @@
             <div class="hidden md:flex items-center gap-7">
                 <a href="{{ url_for('rackets.list_rackets') }}"
                    class="nav-link {{ 'active' if request.blueprint == 'rackets' }}">Vợt Cầu Lông</a>
-                <a href="{{ url_for('brands.list_brands') }}"
-                   class="nav-link {{ 'active' if request.blueprint == 'brands' }}">Thương Hiệu</a>
                 <a href="{{ url_for('blog.list_posts') }}"
                    class="nav-link {{ 'active' if request.blueprint == 'blog' }}">Tin Tức</a>
                 <a href="{{ url_for('main.compare') }}"
@@ -157,7 +155,6 @@
         <div id="mobile-menu" class="hidden md:hidden py-3 border-t border-gray-200 dark:border-gray-700">
             <div class="flex flex-col gap-2 pb-3">
                 <a href="{{ url_for('rackets.list_rackets') }}" class="px-3 py-2 rounded-lg nav-link">Vợt Cầu Lông</a>
-                <a href="{{ url_for('brands.list_brands') }}" class="px-3 py-2 rounded-lg nav-link">Thương Hiệu</a>
                 <a href="{{ url_for('blog.list_posts') }}" class="px-3 py-2 rounded-lg nav-link">Tin Tức</a>
                 <a href="{{ url_for('main.compare') }}" class="px-3 py-2 rounded-lg nav-link">So Sánh</a>
             </div>
