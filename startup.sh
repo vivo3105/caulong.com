@@ -1,11 +1,16 @@
 #!/bin/bash
 # Azure App Service startup script
 
-# Run database seed on first deploy (creates tables + sample data)
-if [ ! -f /home/caulong.db ]; then
-    echo "Database not found — running seed..."
-    python seed.py
-fi
+cd /home/site/wwwroot
 
-# Start gunicorn on the port Azure expects (8000)
+echo "=== CauLong.com startup ==="
+echo "Working dir: $(pwd)"
+echo "Python: $(python --version)"
+
+# Always run seed (idempotent — won't duplicate data)
+echo "Running seed..."
+python seed.py
+
+# Start gunicorn
+echo "Starting gunicorn..."
 gunicorn --bind=0.0.0.0:8000 --timeout=600 --workers=2 --log-level=info run:app

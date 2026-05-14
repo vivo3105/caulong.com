@@ -60,8 +60,20 @@ def create_app(config_class=Config):
         db.session.rollback()
         return render_template('errors/500.html'), 500
 
-    # Create tables
+    # Create tables and auto-seed if empty
     with app.app_context():
         db.create_all()
+        _auto_seed()
 
     return app
+
+
+def _auto_seed():
+    """Seed database automatically if it has no data."""
+    from app.models import Brand
+    try:
+        if Brand.query.count() == 0:
+            import subprocess, sys
+            subprocess.run([sys.executable, 'seed.py'], check=True)
+    except Exception:
+        pass
