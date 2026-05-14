@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+caulong.db
+*.db
+instance/
+.env

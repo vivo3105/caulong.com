@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Tin Tức & Bài Viết Cầu Lông | CầuLong.com{% endblock %}
+{% block meta_description %}Đọc các bài viết hướng dẫn, đánh giá vợt, mẹo chọn vợt và tin tức cầu lông mới nhất tại CầuLong.com.{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-6">
+        <a href="{{ url_for('main.index') }}" class="hover:text-green-600">Trang Chủ</a>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        <span class="text-gray-900 dark:text-white font-medium">Tin Tức</span>
+    </nav>
+
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Tin Tức &amp; Bài Viết</h1>
+        <p class="text-gray-500 dark:text-gray-400 mt-2">Hướng dẫn, đánh giá và tin tức cầu lông mới nhất</p>
+    </div>
+
+    {% if posts %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+        {% for post in posts %}
+        <article class="card group overflow-hidden">
+            <a href="{{ url_for('blog.post_detail', slug=post.slug) }}">
+                <div class="h-52 bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/30 dark:to-emerald-800/30 overflow-hidden">
+                    {% if post.featured_image %}
+                    <img src="{{ url_for('static', filename='uploads/' + post.featured_image) }}"
+                        alt="{{ post.title }}"
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                    {% else %}
+                    <div class="w-full h-full flex items-center justify-center">
+                        <svg class="w-16 h-16 text-green-200 dark:text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+                        </svg>
+                    </div>
+                    {% endif %}
+                </div>
+            </a>
+            <div class="p-5">
+                <div class="flex items-center gap-3 text-xs text-gray-400 dark:text-gray-500 mb-3">
+                    <span class="flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        {{ post.created_at.strftime('%d/%m/%Y') }}
+                    </span>
+                    <span class="flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        {{ post.view_count }} lượt xem
+                    </span>
+                </div>
+                <a href="{{ url_for('blog.post_detail', slug=post.slug) }}">
+                    <h2 class="font-bold text-gray-900 dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors line-clamp-2 mb-3 text-lg leading-tight">{{ post.title }}</h2>
+                </a>
+                {% if post.meta_description %}
+                <p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-3 mb-4">{{ post.meta_description }}</p>
+                {% endif %}
+                <a href="{{ url_for('blog.post_detail', slug=post.slug) }}" class="inline-flex items-center gap-1.5 text-green-600 dark:text-green-400 text-sm font-semibold hover:gap-2.5 transition-all">
+                    Đọc tiếp
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </a>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if pagination.pages > 1 %}
+    <div class="flex items-center justify-center gap-1">
+        {% if pagination.has_prev %}
+        <a href="?page={{ pagination.prev_num }}" class="px-3 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 text-sm">&laquo;</a>
+        {% endif %}
+        {% for page_num in pagination.iter_pages() %}
+            {% if page_num %}
+                {% if page_num == pagination.page %}
+                <span class="px-3 py-2 rounded-lg bg-green-600 text-white text-sm font-semibold">{{ page_num }}</span>
+                {% else %}
+                <a href="?page={{ page_num }}" class="px-3 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 text-sm">{{ page_num }}</a>
+                {% endif %}
+            {% else %}
+            <span class="px-2 py-2 text-gray-400">…</span>
+            {% endif %}
+        {% endfor %}
+        {% if pagination.has_next %}
+        <a href="?page={{ pagination.next_num }}" class="px-3 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 text-sm">&raquo;</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="text-center py-20 bg-white dark:bg-gray-800 rounded-2xl shadow-md">
+        <svg class="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+        </svg>
+        <p class="text-xl text-gray-400 dark:text-gray-500">Chưa có bài viết nào.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

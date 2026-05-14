@@ -1,0 +1,225 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ 'Sửa Vợt' if racket else 'Thêm Vợt Mới' }}{% endblock %}
+{% block page_title %}{{ 'Sửa Vợt: ' + racket.name if racket else 'Thêm Vợt Mới' }}{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <a href="{{ url_for('admin.rackets_list') }}" class="inline-flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        Quay lại danh sách
+    </a>
+</div>
+
+<form method="POST" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Column -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Basic Info -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                <h3 class="font-bold text-gray-900 dark:text-white mb-5 pb-3 border-b border-gray-100 dark:border-gray-700">Thông Tin Cơ Bản</h3>
+                <div class="space-y-5">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Tên Vợt <span class="text-red-500">*</span></label>
+                        <input type="text" name="name" required value="{{ racket.name if racket else '' }}"
+                            placeholder="Yonex Astrox 88D Pro"
+                            class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Thương Hiệu <span class="text-red-500">*</span></label>
+                        <select name="brand_id" required
+                            class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <option value="">-- Chọn thương hiệu --</option>
+                            {% for brand in brands %}
+                            <option value="{{ brand.id }}" {{ 'selected' if racket and racket.brand_id == brand.id }}>{{ brand.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Mô Tả</label>
+                        <textarea name="description" rows="6"
+                            placeholder="Mô tả chi tiết về vợt..."
+                            class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500 resize-y">{{ racket.description if racket else '' }}</textarea>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Ưu Điểm</label>
+                            <textarea name="pros" rows="4"
+                                placeholder="- Ưu điểm 1&#10;- Ưu điểm 2"
+                                class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500 resize-y">{{ racket.pros if racket else '' }}</textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Nhược Điểm</label>
+                            <textarea name="cons" rows="4"
+                                placeholder="- Nhược điểm 1&#10;- Nhược điểm 2"
+                                class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500 resize-y">{{ racket.cons if racket else '' }}</textarea>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Phong Cách Chơi Phù Hợp</label>
+                        <textarea name="playing_style" rows="3"
+                            placeholder="Mô tả phong cách chơi phù hợp..."
+                            class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500 resize-y">{{ racket.playing_style if racket else '' }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Specifications -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                <h3 class="font-bold text-gray-900 dark:text-white mb-5 pb-3 border-b border-gray-100 dark:border-gray-700">Thông Số Kỹ Thuật</h3>
+                <div class="grid grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Cân Nặng (Weight Class)</label>
+                        <select name="weight_class"
+                            class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <option value="">-- Chọn --</option>
+                            {% for wc in ['3U', '4U', '5U'] %}
+                            <option value="{{ wc }}" {{ 'selected' if racket and racket.weight_class == wc }}>{{ wc }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Cân Bằng (Balance)</label>
+                        <select name="balance_type"
+                            class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <option value="">-- Chọn --</option>
+                            {% for bt, label in [('head_heavy', 'Nặng đầu'), ('even', 'Cân bằng'), ('head_light', 'Nhẹ đầu')] %}
+                            <option value="{{ bt }}" {{ 'selected' if racket and racket.balance_type == bt }}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Độ Cứng Cán (Flexibility)</label>
+                        <select name="flexibility"
+                            class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <option value="">-- Chọn --</option>
+                            {% for fl, label in [('extra_stiff', 'Siêu cứng'), ('stiff', 'Cứng'), ('medium', 'Trung bình'), ('flexible', 'Mềm'), ('extra_flexible', 'Siêu mềm')] %}
+                            <option value="{{ fl }}" {{ 'selected' if racket and racket.flexibility == fl }}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Trình Độ</label>
+                        <select name="skill_level"
+                            class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <option value="">-- Chọn --</option>
+                            {% for sl, label in [('beginner', 'Người mới'), ('intermediate', 'Trung cấp'), ('advanced', 'Nâng cao'), ('professional', 'Chuyên nghiệp')] %}
+                            <option value="{{ sl }}" {{ 'selected' if racket and racket.skill_level == sl }}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Vật Liệu Khung</label>
+                        <input type="text" name="frame_material" value="{{ racket.frame_material if racket else '' }}"
+                            placeholder="Carbon Graphite"
+                            class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Vật Liệu Cán</label>
+                        <input type="text" name="shaft_material" value="{{ racket.shaft_material if racket else '' }}"
+                            placeholder="HM Graphite"
+                            class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Lực Căng Dây Tối Thiểu (lbs)</label>
+                        <input type="number" name="string_tension_min" value="{{ racket.string_tension_min if racket else '' }}"
+                            placeholder="20"
+                            class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Lực Căng Dây Tối Đa (lbs)</label>
+                        <input type="number" name="string_tension_max" value="{{ racket.string_tension_max if racket else '' }}"
+                            placeholder="30"
+                            class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Chiều Dài (mm)</label>
+                        <input type="number" name="length_mm" value="{{ racket.length_mm if racket else 675 }}"
+                            class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Giá Bán (VND)</label>
+                        <input type="number" name="price" value="{{ racket.price if racket else '' }}"
+                            placeholder="3000000"
+                            class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Images -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                <h3 class="font-bold text-gray-900 dark:text-white mb-5 pb-3 border-b border-gray-100 dark:border-gray-700">Hình Ảnh</h3>
+                {% if racket and racket.images.count() > 0 %}
+                <div class="flex flex-wrap gap-3 mb-4">
+                    {% for img in racket.images.all() %}
+                    <div class="relative w-24 h-24 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700">
+                        <img src="{{ url_for('static', filename='uploads/' + img.filename) }}" alt="" class="w-full h-full object-contain p-1">
+                        {% if img.is_primary %}
+                        <div class="absolute bottom-0 left-0 right-0 bg-green-600 text-white text-xs text-center py-0.5">Chính</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">Upload thêm hình ảnh mới:</p>
+                {% endif %}
+                <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-6 text-center hover:border-green-400 transition-colors">
+                    <svg class="w-10 h-10 text-gray-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">Kéo thả hình ảnh hoặc click để chọn</p>
+                    <p class="text-xs text-gray-400 dark:text-gray-500">PNG, JPG, JPEG, WEBP (tối đa 16MB)</p>
+                    <input type="file" name="images" multiple accept="image/*"
+                        class="mt-3 text-sm text-gray-500 dark:text-gray-400 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+            <!-- Publish Settings -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                <h3 class="font-bold text-gray-900 dark:text-white mb-5">Cài Đặt</h3>
+                <div class="space-y-4">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" name="is_featured" value="1"
+                            {{ 'checked' if racket and racket.is_featured }}
+                            class="w-4 h-4 text-green-600 rounded border-gray-300 focus:ring-green-500">
+                        <div>
+                            <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">Vợt Nổi Bật</span>
+                            <p class="text-xs text-gray-400 dark:text-gray-500">Hiển thị trên trang chủ</p>
+                        </div>
+                    </label>
+                </div>
+                <div class="mt-6 flex gap-3">
+                    <button type="submit" class="flex-1 inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2.5 rounded-lg text-sm transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        {{ 'Cập Nhật' if racket else 'Thêm Vợt' }}
+                    </button>
+                    <a href="{{ url_for('admin.rackets_list') }}" class="px-4 py-2.5 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                        Hủy
+                    </a>
+                </div>
+            </div>
+
+            <!-- SEO -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                <h3 class="font-bold text-gray-900 dark:text-white mb-5">SEO</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Meta Title</label>
+                        <input type="text" name="meta_title" value="{{ racket.meta_title if racket else '' }}"
+                            placeholder="Tên vợt - Thương hiệu | CầuLong.com"
+                            class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Meta Description</label>
+                        <textarea name="meta_description" rows="3"
+                            placeholder="Mô tả ngắn cho SEO..."
+                            class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500 resize-y">{{ racket.meta_description if racket else '' }}</textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ 'Sửa Thương Hiệu' if brand else 'Thêm Thương Hiệu' }}{% endblock %}
+{% block page_title %}{{ 'Sửa Thương Hiệu: ' + brand.name if brand else 'Thêm Thương Hiệu Mới' }}{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <a href="{{ url_for('admin.brands_list') }}" class="inline-flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        Quay lại danh sách
+    </a>
+</div>
+
+<div class="max-w-2xl">
+    <form method="POST" enctype="multipart/form-data" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="space-y-5">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Tên Thương Hiệu <span class="text-red-500">*</span></label>
+                <input type="text" name="name" required value="{{ brand.name if brand else '' }}"
+                    placeholder="Yonex"
+                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500">
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Quốc Gia</label>
+                <input type="text" name="country" value="{{ brand.country if brand else '' }}"
+                    placeholder="Nhật Bản"
+                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500">
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Mô Tả</label>
+                <textarea name="description" rows="5"
+                    placeholder="Mô tả về thương hiệu..."
+                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500 resize-y">{{ brand.description if brand else '' }}</textarea>
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Logo</label>
+                {% if brand and brand.logo %}
+                <div class="mb-3">
+                    <img src="{{ url_for('static', filename='uploads/' + brand.logo) }}" alt="Logo hiện tại" class="w-20 h-20 object-contain border border-gray-200 dark:border-gray-600 rounded-lg p-1">
+                    <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Logo hiện tại. Upload file mới để thay thế.</p>
+                </div>
+                {% endif %}
+                <input type="file" name="logo" accept="image/*"
+                    class="text-sm text-gray-500 dark:text-gray-400 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Banner</label>
+                {% if brand and brand.banner_image %}
+                <div class="mb-3">
+                    <img src="{{ url_for('static', filename='uploads/' + brand.banner_image) }}" alt="Banner hiện tại" class="w-full h-24 object-cover border border-gray-200 dark:border-gray-600 rounded-lg">
+                    <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Banner hiện tại. Upload file mới để thay thế.</p>
+                </div>
+                {% endif %}
+                <input type="file" name="banner_image" accept="image/*"
+                    class="text-sm text-gray-500 dark:text-gray-400 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
+            </div>
+            <div class="flex gap-3 pt-2">
+                <button type="submit" class="flex-1 inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2.5 rounded-lg text-sm transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    {{ 'Cập Nhật' if brand else 'Thêm Thương Hiệu' }}
+                </button>
+                <a href="{{ url_for('admin.brands_list') }}" class="px-4 py-2.5 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    Hủy
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

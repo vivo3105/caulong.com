@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}404 - Trang Không Tồn Tại | CầuLong.com{% endblock %}
+
+{% block content %}
+<div class="min-h-[70vh] flex items-center justify-center">
+    <div class="text-center px-4">
+        <div class="text-9xl font-extrabold text-green-600 dark:text-green-400 mb-4">404</div>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-3">Trang Không Tồn Tại</h1>
+        <p class="text-gray-500 dark:text-gray-400 mb-8 max-w-md mx-auto">Trang bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.</p>
+        <div class="flex flex-wrap items-center justify-center gap-3">
+            <a href="{{ url_for('main.index') }}" class="btn-primary">Về Trang Chủ</a>
+            <a href="{{ url_for('rackets.list_rackets') }}" class="btn-secondary">Xem Tất Cả Vợt</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
