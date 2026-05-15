@@ -5,12 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}CầuLông.com - Vợt Cầu Lông Chính Hãng{% endblock %}</title>
     <meta name="description" content="{% block meta_description %}CầuLông.com - Trang web chuyên đánh giá, so sánh và tư vấn vợt cầu lông chính hãng tại Việt Nam.{% endblock %}">
+    <link rel="canonical" href="{{ request.url.split('?')[0] }}">
     {% block og_meta %}
     <meta property="og:title" content="{% block og_title %}CầuLông.com{% endblock %}">
     <meta property="og:description" content="{% block og_description %}Khám phá và so sánh vợt cầu lông chính hãng tại CầuLông.com{% endblock %}">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ request.url }}">
+    <meta property="og:url" content="{{ request.url.split('?')[0] }}">
     <meta property="og:site_name" content="CầuLông.com">
+    <meta property="og:image" content="{% block og_image %}{{ request.host_url }}static/img/og-default.png{% endblock %}">
+    <meta property="og:locale" content="vi_VN">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block twitter_title %}CầuLông.com{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}Khám phá và so sánh vợt cầu lông chính hãng tại CầuLông.com{% endblock %}">
+    <meta name="twitter:image" content="{% block twitter_image %}{{ request.host_url }}static/img/og-default.png{% endblock %}">
+    {% endblock %}
+    <!-- Organization JSON-LD -->
+    {% block jsonld %}
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "CầuLông.com",
+      "url": "{{ request.host_url }}",
+      "description": "Trang web chuyên đánh giá, so sánh và tư vấn vợt cầu lông chính hãng tại Việt Nam.",
+      "inLanguage": "vi"
+    }
+    </script>
     {% endblock %}
     <script src="https://cdn.tailwindcss.com"></script>
     <script>

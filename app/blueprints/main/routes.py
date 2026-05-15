@@ -109,15 +109,16 @@ def compare():
 def sitemap():
     pages = []
     base_url = request.host_url.rstrip('/')
+    today = datetime.utcnow().strftime('%Y-%m-%d')
 
     # Static pages
-    pages.append({'loc': base_url + '/', 'priority': '1.0', 'changefreq': 'daily'})
-    pages.append({'loc': base_url + '/vot-cau-long', 'priority': '0.9', 'changefreq': 'daily'})
-    pages.append({'loc': base_url + '/thuong-hieu', 'priority': '0.8', 'changefreq': 'weekly'})
-    pages.append({'loc': base_url + '/tin-tuc', 'priority': '0.8', 'changefreq': 'daily'})
+    pages.append({'loc': base_url + '/', 'lastmod': today, 'priority': '1.0', 'changefreq': 'daily'})
+    pages.append({'loc': base_url + '/vot-cau-long', 'lastmod': today, 'priority': '0.9', 'changefreq': 'daily'})
+    pages.append({'loc': base_url + '/thuong-hieu', 'lastmod': today, 'priority': '0.8', 'changefreq': 'weekly'})
+    pages.append({'loc': base_url + '/tin-tuc', 'lastmod': today, 'priority': '0.8', 'changefreq': 'daily'})
 
     # Rackets
-    rackets = Racket.query.all()
+    rackets = Racket.query.filter_by().order_by(Racket.updated_at.desc()).all()
     for r in rackets:
         pages.append({
             'loc': f'{base_url}/vot-cau-long/{r.slug}',
@@ -127,16 +128,17 @@ def sitemap():
         })
 
     # Brands
-    brands = Brand.query.all()
+    brands = Brand.query.order_by(Brand.name).all()
     for b in brands:
         pages.append({
             'loc': f'{base_url}/thuong-hieu/{b.slug}',
+            'lastmod': today,
             'priority': '0.7',
             'changefreq': 'weekly'
         })
 
     # Blog posts
-    posts = BlogPost.query.filter_by(is_published=True).all()
+    posts = BlogPost.query.filter_by(is_published=True).order_by(BlogPost.updated_at.desc()).all()
     for p in posts:
         pages.append({
             'loc': f'{base_url}/tin-tuc/{p.slug}',
@@ -153,6 +155,14 @@ def sitemap():
 def robots():
     base_url = request.host_url.rstrip('/')
     content = f"""User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /dang-nhap
+Disallow: /search?
+Disallow: /so-sanh
+Crawl-delay: 1
+
+User-agent: Googlebot
 Allow: /
 Disallow: /admin/
 Disallow: /dang-nhap
