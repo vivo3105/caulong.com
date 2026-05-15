@@ -67,13 +67,13 @@
 
         <!-- Spec rows on mobile -->
         {% set row_specs = [
-            ('Trình Độ', 'skill'),
-            ('Cân Nặng', 'weight'),
-            ('Cân Bằng', 'balance'),
-            ('Độ Cứng', 'flex'),
+            ('Trình Độ', 'skill_level'),
+            ('Cân Nặng', 'weight_class'),
+            ('Cân Bằng', 'balance_type'),
+            ('Độ Cứng', 'flexibility'),
             ('Lực Căng', 'tension'),
-            ('Khung', 'frame'),
-            ('Cán', 'shaft'),
+            ('Khung', 'frame_material'),
+            ('Cán', 'shaft_material'),
         ] %}
         {% for label, key in row_specs %}
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
