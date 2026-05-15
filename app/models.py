@@ -202,7 +202,7 @@ class Racket(db.Model):
             'speed':    'Tốc độ',
             'control':  'Điều cầu',
         }
-        return mapping.get(self.playing_style, self.playing_style or '')
+        return mapping.get(self.playing_style, '')
 
     def __repr__(self):
         return f'<Racket {self.name}>'
