@@ -106,15 +106,18 @@ def dashboard():
 @admin_required
 def rackets_list():
     search = request.args.get('q', '')
+    no_image = request.args.get('no_image', '')
     query = Racket.query.join(Brand)
     if search:
         query = query.filter(
             db.or_(Racket.name.ilike(f'%{search}%'), Brand.name.ilike(f'%{search}%'))
         )
+    if no_image:
+        query = query.filter(~Racket.images.any())
     page = request.args.get('page', 1, type=int)
     pagination = query.order_by(Racket.created_at.desc()).paginate(page=page, per_page=20, error_out=False)
     return render_template('admin/rackets/list.html', pagination=pagination,
-                           rackets=pagination.items, search=search)
+                           rackets=pagination.items, search=search, no_image=no_image)
 
 
 @admin_bp.route('/rackets/them', methods=['GET', 'POST'])
