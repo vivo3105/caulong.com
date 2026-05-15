@@ -10,6 +10,7 @@
 {% block twitter_description %}{{ racket.meta_description or 'Đánh giá ' + racket.name }}{% endblock %}
 {% block twitter_image %}{% if _img %}{{ request.host_url }}media/{{ _img }}{% else %}{{ request.host_url }}static/img/og-default.png{% endif %}{% endblock %}
 
+{% set grip_tooltip = {'S2': 'Cán nhỏ', 'G5': 'Cán nhỏ', 'S3': 'Cán to', 'G4': 'Cán to'} %}
 {% block jsonld %}
 <script type="application/ld+json">
 {
@@ -139,7 +140,7 @@
                         {% if racket.grip_sizes_list %}
                         <div class="flex flex-wrap gap-1 mt-0.5">
                             {% for gs in racket.grip_sizes_list %}
-                            <span class="px-2 py-0.5 bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 text-xs font-semibold rounded">{{ gs }}</span>
+                            <span title="{{ grip_tooltip.get(gs, '') }}" class="px-2 py-0.5 bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 text-xs font-semibold rounded cursor-help">{{ gs }}</span>
                             {% endfor %}
                         </div>
                         {% else %}
@@ -398,7 +399,7 @@
                         <span class="text-sm text-gray-500 dark:text-gray-400">Cỡ Cán</span>
                         <div class="flex flex-wrap gap-1 justify-end">
                             {% for gs in racket.grip_sizes_list %}
-                            <span class="px-1.5 py-0.5 bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 text-xs font-semibold rounded">{{ gs }}</span>
+                            <span title="{{ grip_tooltip.get(gs, '') }}" class="px-1.5 py-0.5 bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 text-xs font-semibold rounded cursor-help">{{ gs }}</span>
                             {% endfor %}
                         </div>
                     </div>
