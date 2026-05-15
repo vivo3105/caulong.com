@@ -212,18 +212,8 @@
                     <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                     </svg>
-                    <span class="hidden sm:inline">Thêm So Sánh</span>
-                    <span class="sm:hidden">So Sánh</span>
+                    Thêm So Sánh
                 </button>
-                <!-- So Sánh Ngay -->
-                <a id="detail-compare-go" href="{{ url_for('main.compare') }}?id={{ racket.id }}"
-                    class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-green-600 hover:bg-green-700 text-white text-sm font-medium transition-all duration-200">
-                    <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                    </svg>
-                    <span class="hidden sm:inline">So Sánh Ngay</span>
-                    <span class="sm:hidden">So Sánh</span>
-                </a>
             </div>
         </div>
     </div>
@@ -546,18 +536,5 @@ function handleBuyNow() {
     }, 1500);
 }
 
-// Build So Sánh Ngay URL from localStorage compare list + current racket
-(function () {
-    var link = document.getElementById('detail-compare-go');
-    if (!link) return;
-    try {
-        var list = JSON.parse(localStorage.getItem('compareList') || '[]');
-        var currentId = {{ racket.id }};
-        var ids = list.map(function (i) { return i.id; });
-        if (ids.indexOf(currentId) === -1) ids.unshift(currentId);
-        ids = ids.slice(0, 3);
-        link.href = '{{ url_for("main.compare") }}?' + ids.map(function (id) { return 'id=' + id; }).join('&');
-    } catch (e) {}
-})();
 </script>
 {% endblock %}
