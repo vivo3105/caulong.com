@@ -506,6 +506,21 @@ IMPORT_FIELDS = [
 BOOL_FIELDS = {'is_featured'}
 INT_FIELDS = {'price', 'string_tension_min', 'string_tension_max', 'length_mm'}
 
+PLAYING_STYLE_MAP = {
+    'tấn công': 'attack',
+    'phòng thủ': 'defense',
+    'toàn diện': 'allround',
+    'tốc độ':   'speed',
+    'điều cầu': 'control',
+    # also accept English keys directly
+    'attack': 'attack', 'defense': 'defense', 'allround': 'allround',
+    'speed': 'speed', 'control': 'control',
+}
+PLAYING_STYLE_DISPLAY = {
+    'attack': 'Tấn công', 'defense': 'Phòng thủ', 'allround': 'Toàn diện',
+    'speed': 'Tốc độ', 'control': 'Điều cầu',
+}
+
 
 def _parse_row(row):
     """Normalise a dict row from CSV/JSON into cleaned field values."""
@@ -521,6 +536,8 @@ def _parse_row(row):
                 data[field] = int(val)
             except (ValueError, TypeError):
                 pass
+        elif field == 'playing_style':
+            data[field] = PLAYING_STYLE_MAP.get(str(val).strip().lower(), val)
         else:
             data[field] = val
     return data
@@ -668,7 +685,7 @@ def _racket_to_dict(r):
         'description': r.description or '',
         'pros': r.pros or '',
         'cons': r.cons or '',
-        'playing_style': r.playing_style or '',
+        'playing_style': PLAYING_STYLE_DISPLAY.get(r.playing_style or '', r.playing_style or ''),
         'is_featured': 'true' if r.is_featured else 'false',
         'meta_title': r.meta_title or '',
         'meta_description': r.meta_description or '',
