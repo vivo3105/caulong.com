@@ -174,48 +174,63 @@
             {% if rackets %}
             <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
                 {% for racket in rackets %}
-                <div class="card group overflow-hidden">
-                    <a href="{{ url_for('rackets.racket_detail', slug=racket.slug) }}">
-                        <div class="relative h-52 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 overflow-hidden">
+                <div class="card group overflow-hidden flex flex-col">
+                    <a href="{{ url_for('rackets.racket_detail', slug=racket.slug) }}" class="block relative">
+                        <!-- Image -->
+                        <div class="relative h-52 bg-white dark:bg-gray-800 overflow-hidden">
                             {% if racket.primary_image %}
                             <img src="{{ url_for('main.uploaded_file', filename=racket.primary_image.filename) }}"
                                 alt="{{ racket.name }}"
-                                class="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-300">
+                                class="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300">
                             {% else %}
                             <div class="w-full h-full flex items-center justify-center">
-                                <svg class="w-16 h-16 text-gray-300 dark:text-gray-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>
+                                <svg class="w-16 h-16 text-gray-200 dark:text-gray-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>
                             </div>
                             {% endif %}
-                            <div class="absolute top-3 left-3 flex flex-col gap-1">
-                                <span class="badge text-xs
-                                    {% if racket.skill_level == 'beginner' %}bg-blue-100 text-blue-700
-                                    {% elif racket.skill_level == 'intermediate' %}bg-yellow-100 text-yellow-700
-                                    {% elif racket.skill_level == 'advanced' %}bg-orange-100 text-orange-700
-                                    {% else %}bg-red-100 text-red-700{% endif %}">
-                                    {{ racket.skill_level_display }}
+                            <!-- Featured badge -->
+                            {% if racket.is_featured %}
+                            <div class="absolute top-2.5 right-2.5">
+                                <span class="inline-flex items-center gap-1 bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide shadow">
+                                    <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                    Nổi bật
                                 </span>
-                                {% if racket.playing_style_display %}
-                                <span class="badge text-xs
-                                    {% if racket.playing_style == 'attack'   %}bg-red-100 text-red-700
-                                    {% elif racket.playing_style == 'defense' %}bg-sky-100 text-sky-700
-                                    {% elif racket.playing_style == 'allround' %}bg-green-100 text-green-700
-                                    {% elif racket.playing_style == 'speed'  %}bg-purple-100 text-purple-700
-                                    {% else %}bg-amber-100 text-amber-700{% endif %}">
-                                    {{ racket.playing_style_display }}
-                                </span>
-                                {% endif %}
                             </div>
+                            {% endif %}
+                            <!-- Thin bottom border separator -->
+                            <div class="absolute bottom-0 left-0 right-0 h-px bg-gray-100 dark:bg-gray-700"></div>
                         </div>
                     </a>
-                    <div class="p-4">
-                        <p class="text-xs text-green-600 dark:text-green-400 font-semibold uppercase tracking-wide mb-1">{{ racket.brand.name }}</p>
+                    <!-- Card body -->
+                    <div class="p-4 flex flex-col flex-1">
+                        <p class="text-[11px] text-green-600 dark:text-green-400 font-bold uppercase tracking-widest mb-1">{{ racket.brand.name }}</p>
                         <a href="{{ url_for('rackets.racket_detail', slug=racket.slug) }}">
-                            <h3 class="font-bold text-gray-900 dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors line-clamp-2 mb-2 text-sm">{{ racket.name }}</h3>
+                            <h3 class="font-bold text-gray-900 dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors line-clamp-2 mb-2.5 text-sm leading-snug">{{ racket.name }}</h3>
                         </a>
+                        <!-- Tags row -->
+                        <div class="flex flex-wrap gap-1.5 mb-3">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold
+                                {% if racket.skill_level == 'beginner' %}bg-blue-500 text-white
+                                {% elif racket.skill_level == 'intermediate' %}bg-yellow-500 text-white
+                                {% elif racket.skill_level == 'advanced' %}bg-orange-500 text-white
+                                {% else %}bg-red-600 text-white{% endif %}">
+                                {{ racket.skill_level_display }}
+                            </span>
+                            {% if racket.playing_style_display %}
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold border
+                                {% if racket.playing_style == 'attack'   %}border-red-400 text-red-600 dark:text-red-400
+                                {% elif racket.playing_style == 'defense' %}border-sky-400 text-sky-600 dark:text-sky-400
+                                {% elif racket.playing_style == 'allround' %}border-green-400 text-green-600 dark:text-green-400
+                                {% elif racket.playing_style == 'speed'  %}border-purple-400 text-purple-600 dark:text-purple-400
+                                {% else %}border-amber-400 text-amber-600 dark:text-amber-400{% endif %}">
+                                {{ racket.playing_style_display }}
+                            </span>
+                            {% endif %}
+                        </div>
+                        <!-- Stars -->
                         <div class="flex items-center gap-1 mb-3">
                             {% set avg = racket.average_rating %}
                             {% for i in range(5) %}
-                            <svg class="w-3.5 h-3.5 {{ 'text-yellow-400' if i < avg|int else 'text-gray-300 dark:text-gray-600' }}" fill="currentColor" viewBox="0 0 20 20">
+                            <svg class="w-3.5 h-3.5 {{ 'text-yellow-400' if i < avg|int else 'text-gray-200 dark:text-gray-600' }}" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                             </svg>
                             {% endfor %}
