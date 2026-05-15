@@ -193,6 +193,17 @@ class Racket(db.Model):
         }
         return mapping.get(self.skill_level, self.skill_level or 'N/A')
 
+    @property
+    def playing_style_display(self):
+        mapping = {
+            'attack':   'Tấn công',
+            'defense':  'Phòng thủ',
+            'allround': 'Toàn diện',
+            'speed':    'Tốc độ',
+            'control':  'Điều cầu',
+        }
+        return mapping.get(self.playing_style, self.playing_style or '')
+
     def __repr__(self):
         return f'<Racket {self.name}>'
 

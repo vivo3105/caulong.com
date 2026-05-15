@@ -116,6 +116,12 @@
                         <p class="text-xs text-gray-500 dark:text-gray-400">Trình Độ</p>
                         <p class="font-semibold text-gray-900 dark:text-white">{{ racket.skill_level_display }}</p>
                     </div>
+                    {% if racket.playing_style %}
+                    <div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Lối Chơi</p>
+                        <p class="font-semibold text-gray-900 dark:text-white">{{ racket.playing_style_display }}</p>
+                    </div>
+                    {% endif %}
                     {% if racket.string_tension_min and racket.string_tension_max %}
                     <div>
                         <p class="text-xs text-gray-500 dark:text-gray-400">Lực Căng Dây</p>
