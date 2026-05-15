@@ -11,6 +11,14 @@
                 class="pl-9 pr-4 py-2.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500 w-64">
             <svg class="absolute left-3 top-3 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
         </div>
+        <!-- Brand filter -->
+        <select name="brand_id" onchange="this.form.submit()"
+            class="py-2.5 pl-3 pr-8 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500">
+            <option value="">Tất cả thương hiệu</option>
+            {% for b in brands %}
+            <option value="{{ b.id }}" {% if brand_id == b.id|string %}selected{% endif %}>{{ b.name }}</option>
+            {% endfor %}
+        </select>
         <button type="submit" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors">
             Tìm
         </button>
@@ -29,7 +37,7 @@
             Chưa có ảnh
         </a>
         {% endif %}
-        {% if search or no_image %}
+        {% if search or no_image or brand_id %}
         <a href="{{ url_for('admin.rackets_list') }}" class="text-sm text-gray-500 hover:text-red-500">Xóa lọc</a>
         {% endif %}
     </form>
@@ -127,21 +135,21 @@
         <p class="text-sm text-gray-500 dark:text-gray-400">{{ pagination.total }} vợt</p>
         <div class="flex items-center gap-1">
             {% if pagination.has_prev %}
-            <a href="?page={{ pagination.prev_num }}{% if search %}&q={{ search }}{% endif %}{% if no_image %}&no_image=1{% endif %}" class="px-3 py-1.5 rounded bg-gray-100 dark:bg-gray-700 text-sm hover:bg-gray-200 dark:hover:bg-gray-600">&laquo;</a>
+            <a href="?page={{ pagination.prev_num }}{% if search %}&q={{ search }}{% endif %}{% if no_image %}&no_image=1{% endif %}{% if brand_id %}&brand_id={{ brand_id }}{% endif %}" class="px-3 py-1.5 rounded bg-gray-100 dark:bg-gray-700 text-sm hover:bg-gray-200 dark:hover:bg-gray-600">&laquo;</a>
             {% endif %}
             {% for page_num in pagination.iter_pages() %}
                 {% if page_num %}
                     {% if page_num == pagination.page %}
                     <span class="px-3 py-1.5 rounded bg-green-600 text-white text-sm">{{ page_num }}</span>
                     {% else %}
-                    <a href="?page={{ page_num }}{% if search %}&q={{ search }}{% endif %}{% if no_image %}&no_image=1{% endif %}" class="px-3 py-1.5 rounded bg-gray-100 dark:bg-gray-700 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300">{{ page_num }}</a>
+                    <a href="?page={{ page_num }}{% if search %}&q={{ search }}{% endif %}{% if no_image %}&no_image=1{% endif %}{% if brand_id %}&brand_id={{ brand_id }}{% endif %}" class="px-3 py-1.5 rounded bg-gray-100 dark:bg-gray-700 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300">{{ page_num }}</a>
                     {% endif %}
                 {% else %}
                 <span class="px-2 text-gray-400">…</span>
                 {% endif %}
             {% endfor %}
             {% if pagination.has_next %}
-            <a href="?page={{ pagination.next_num }}{% if search %}&q={{ search }}{% endif %}{% if no_image %}&no_image=1{% endif %}" class="px-3 py-1.5 rounded bg-gray-100 dark:bg-gray-700 text-sm hover:bg-gray-200 dark:hover:bg-gray-600">&raquo;</a>
+            <a href="?page={{ pagination.next_num }}{% if search %}&q={{ search }}{% endif %}{% if no_image %}&no_image=1{% endif %}{% if brand_id %}&brand_id={{ brand_id }}{% endif %}" class="px-3 py-1.5 rounded bg-gray-100 dark:bg-gray-700 text-sm hover:bg-gray-200 dark:hover:bg-gray-600">&raquo;</a>
             {% endif %}
         </div>
     </div>

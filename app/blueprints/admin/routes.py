@@ -107,6 +107,7 @@ def dashboard():
 def rackets_list():
     search = request.args.get('q', '')
     no_image = request.args.get('no_image', '')
+    brand_id = request.args.get('brand_id', '', type=str)
     query = Racket.query.join(Brand)
     if search:
         query = query.filter(
@@ -114,10 +115,14 @@ def rackets_list():
         )
     if no_image:
         query = query.filter(~Racket.images.any())
+    if brand_id:
+        query = query.filter(Racket.brand_id == int(brand_id))
     page = request.args.get('page', 1, type=int)
     pagination = query.order_by(Racket.created_at.desc()).paginate(page=page, per_page=20, error_out=False)
+    brands = Brand.query.order_by(Brand.name).all()
     return render_template('admin/rackets/list.html', pagination=pagination,
-                           rackets=pagination.items, search=search, no_image=no_image)
+                           rackets=pagination.items, search=search, no_image=no_image,
+                           brands=brands, brand_id=brand_id)
 
 
 @admin_bp.route('/rackets/them', methods=['GET', 'POST'])
