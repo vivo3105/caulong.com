@@ -3,7 +3,49 @@
 {% block title %}{{ racket.meta_title or racket.name + ' - CầuLông.com' }}{% endblock %}
 {% block meta_description %}{{ racket.meta_description or 'Đánh giá chi tiết ' + racket.name + ' từ ' + racket.brand.name + '. Xem thông số kỹ thuật, ưu nhược điểm và giá bán.' }}{% endblock %}
 {% block og_title %}{{ racket.name }} - {{ racket.brand.name }}{% endblock %}
-{% block og_description %}{{ racket.meta_description or 'Đánh giá ' + racket.name }}{% endblock %}
+{% block og_description %}{{ racket.meta_description or 'Đánh giá ' + racket.name + ' từ ' + racket.brand.name }}{% endblock %}
+{% set _img = images[0].filename if images else '' %}
+{% block og_image %}{% if _img %}{{ request.host_url }}media/{{ _img }}{% else %}{{ request.host_url }}static/img/og-default.png{% endif %}{% endblock %}
+{% block twitter_title %}{{ racket.name }} - {{ racket.brand.name }}{% endblock %}
+{% block twitter_description %}{{ racket.meta_description or 'Đánh giá ' + racket.name }}{% endblock %}
+{% block twitter_image %}{% if _img %}{{ request.host_url }}media/{{ _img }}{% else %}{{ request.host_url }}static/img/og-default.png{% endif %}{% endblock %}
+
+{% block jsonld %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "{{ racket.name | e }}",
+  "description": "{{ (racket.meta_description or racket.description or '') | e }}",
+  "brand": { "@type": "Brand", "name": "{{ racket.brand.name | e }}" },
+  {% if images %}"image": "{{ request.host_url }}media/{{ images[0].filename }}",{% endif %}
+  {% if racket.price %}"offers": {
+    "@type": "Offer",
+    "priceCurrency": "VND",
+    "price": "{{ racket.price }}",
+    "availability": "https://schema.org/InStock",
+    "url": "{{ request.url }}"
+  },{% endif %}
+  {% if racket.review_count > 0 %}"aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "{{ '%.1f' % racket.average_rating }}",
+    "reviewCount": "{{ racket.review_count }}"
+  },{% endif %}
+  "url": "{{ request.url }}"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Trang Chủ", "item": "{{ request.host_url }}" },
+    { "@type": "ListItem", "position": 2, "name": "Vợt Cầu Lông", "item": "{{ request.host_url }}vot-cau-long" },
+    { "@type": "ListItem", "position": 3, "name": "{{ racket.name | e }}", "item": "{{ request.url }}" }
+  ]
+}
+</script>
+{% endblock %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
