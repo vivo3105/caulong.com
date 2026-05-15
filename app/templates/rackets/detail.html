@@ -150,24 +150,47 @@
             </div>
 
             <!-- Action Buttons -->
-            <div class="grid grid-cols-2 gap-3 mt-2">
-                <button onclick="toggleCompare({{ racket.id }}, '{{ racket.name }}')"
-                    id="compare-btn-{{ racket.id }}"
-                    class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold hover:border-green-500 hover:text-green-600 dark:hover:text-green-400 transition-all duration-200">
-                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+            <div class="flex flex-col gap-2 mt-2">
+                <!-- Mua Ngay -->
+                <button id="buy-btn" onclick="handleBuyNow()"
+                    class="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-base transition-all duration-200">
+                    <svg id="buy-icon" class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
                     </svg>
-                    <span>Thêm So Sánh</span>
+                    <svg id="buy-spinner" class="w-5 h-5 hidden animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                    </svg>
+                    <span id="buy-text">Mua Ngay</span>
                 </button>
-                <a href="{{ url_for('main.compare') }}?id={{ racket.id }}"
-                    class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-green-600 hover:bg-green-700 text-white font-semibold transition-all duration-200">
-                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                    </svg>
-                    <span>So Sánh Ngay</span>
-                </a>
+                <!-- Compare buttons (smaller) -->
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="toggleCompare({{ racket.id }}, '{{ racket.name }}')"
+                        id="compare-btn-{{ racket.id }}"
+                        class="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-sm font-medium hover:border-green-500 hover:text-green-600 dark:hover:text-green-400 transition-all duration-200">
+                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                        <span>Thêm So Sánh</span>
+                    </button>
+                    <a href="{{ url_for('main.compare') }}?id={{ racket.id }}"
+                        class="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-medium transition-all duration-200">
+                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                        <span>So Sánh Ngay</span>
+                    </a>
+                </div>
             </div>
         </div>
+    </div>
+
+    <!-- Out of stock toast -->
+    <div id="oos-toast" class="hidden fixed bottom-24 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-gray-900 text-white px-5 py-3 rounded-2xl shadow-2xl text-sm font-medium">
+        <svg class="w-5 h-5 text-orange-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+        </svg>
+        Sản phẩm hiện đang tạm hết hàng
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -453,5 +476,31 @@
         img.style.transformOrigin = x + '% ' + y + '%';
     });
 })();
+</script>
+
+<script>
+function handleBuyNow() {
+    var btn = document.getElementById('buy-btn');
+    var icon = document.getElementById('buy-icon');
+    var spinner = document.getElementById('buy-spinner');
+    var text = document.getElementById('buy-text');
+    var toast = document.getElementById('oos-toast');
+    if (btn.disabled) return;
+
+    btn.disabled = true;
+    icon.classList.add('hidden');
+    spinner.classList.remove('hidden');
+    text.textContent = 'Đang kiểm tra...';
+
+    setTimeout(function () {
+        spinner.classList.add('hidden');
+        icon.classList.remove('hidden');
+        text.textContent = 'Mua Ngay';
+        btn.disabled = false;
+
+        toast.classList.remove('hidden');
+        setTimeout(function () { toast.classList.add('hidden'); }, 3000);
+    }, 1500);
+}
 </script>
 {% endblock %}
