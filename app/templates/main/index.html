@@ -41,12 +41,12 @@
                 <!-- Suggestion tags row -->
                 <div id="hero-suggest" class="flex flex-wrap gap-2 mt-3 min-h-[2rem] transition-all duration-200"></div>
             </div>
-            <!-- Quick Filters -->
+            <!-- Quick Brand Links -->
             <div class="flex flex-wrap items-center justify-center gap-3 mt-6">
-                <a href="{{ url_for('rackets.list_rackets', skill_level='beginner') }}" class="bg-white/20 hover:bg-white/30 text-white text-sm px-4 py-1.5 rounded-full transition-colors">Người Mới</a>
-                <a href="{{ url_for('rackets.list_rackets', balance_type='head_heavy') }}" class="bg-white/20 hover:bg-white/30 text-white text-sm px-4 py-1.5 rounded-full transition-colors">Nặng Đầu</a>
-                <a href="{{ url_for('rackets.list_rackets', flexibility='stiff') }}" class="bg-white/20 hover:bg-white/30 text-white text-sm px-4 py-1.5 rounded-full transition-colors">Cán Cứng</a>
-                <a href="{{ url_for('rackets.list_rackets', skill_level='professional') }}" class="bg-white/20 hover:bg-white/30 text-white text-sm px-4 py-1.5 rounded-full transition-colors">Chuyên Nghiệp</a>
+                <a href="{{ url_for('brands.brand_detail', slug='yonex') }}" class="bg-white/20 hover:bg-white/35 text-white text-sm font-medium px-5 py-1.5 rounded-full transition-colors">Yonex</a>
+                <a href="{{ url_for('brands.brand_detail', slug='li-ning') }}" class="bg-white/20 hover:bg-white/35 text-white text-sm font-medium px-5 py-1.5 rounded-full transition-colors">Li-Ning</a>
+                <a href="{{ url_for('brands.brand_detail', slug='victor') }}" class="bg-white/20 hover:bg-white/35 text-white text-sm font-medium px-5 py-1.5 rounded-full transition-colors">Victor</a>
+                <a href="{{ url_for('brands.brand_detail', slug='mizuno') }}" class="bg-white/20 hover:bg-white/35 text-white text-sm font-medium px-5 py-1.5 rounded-full transition-colors">Mizuno</a>
             </div>
         </div>
     </div>

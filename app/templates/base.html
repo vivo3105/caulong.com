@@ -202,18 +202,20 @@
 </main>
 
 <!-- Compare Floating Bar -->
-<div id="compare-bar" class="hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-2xl z-40 py-3 px-4">
-    <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
-        <div class="flex items-center gap-3">
-            <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">So sánh:</span>
-            <div id="compare-items" class="flex items-center gap-2"></div>
+<div id="compare-bar" class="hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-2xl z-40 py-2.5 px-4">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <!-- Chips row -->
+        <div class="flex items-center gap-2 min-w-0">
+            <span class="text-sm font-semibold text-gray-700 dark:text-gray-300 whitespace-nowrap">So sánh:</span>
+            <div id="compare-items" class="flex items-center gap-2 overflow-x-auto flex-1 min-w-0 pb-0.5"></div>
         </div>
-        <div class="flex items-center gap-3">
-            <a id="compare-go-btn" href="{{ url_for('main.compare') }}" class="btn-primary text-sm py-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        <!-- Action buttons row -->
+        <div class="flex items-center gap-2 flex-shrink-0">
+            <a id="compare-go-btn" href="{{ url_for('main.compare') }}" class="btn-primary text-sm py-2 flex-1 sm:flex-none justify-center">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
                 So Sánh Ngay
             </a>
-            <button onclick="clearCompare()" class="text-sm text-gray-500 hover:text-red-500">Xóa tất cả</button>
+            <button onclick="clearCompare()" class="text-sm text-gray-500 hover:text-red-500 whitespace-nowrap px-2 py-2">Xóa tất cả</button>
         </div>
     </div>
 </div>

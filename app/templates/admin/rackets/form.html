@@ -58,10 +58,17 @@
                         </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Phong Cách Chơi Phù Hợp</label>
-                        <textarea name="playing_style" rows="3"
-                            placeholder="Mô tả phong cách chơi phù hợp..."
-                            class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500 resize-y">{{ racket.playing_style if racket else '' }}</textarea>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Lối Chơi</label>
+                        <select name="playing_style"
+                            class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <option value="">-- Chọn lối chơi --</option>
+                            {% set ps = racket.playing_style if racket else '' %}
+                            <option value="attack"   {% if ps == 'attack'   %}selected{% endif %}>Tấn công</option>
+                            <option value="defense"  {% if ps == 'defense'  %}selected{% endif %}>Phòng thủ</option>
+                            <option value="allround" {% if ps == 'allround' %}selected{% endif %}>Toàn diện</option>
+                            <option value="speed"    {% if ps == 'speed'    %}selected{% endif %}>Tốc độ</option>
+                            <option value="control"  {% if ps == 'control'  %}selected{% endif %}>Điều cầu</option>
+                        </select>
                     </div>
                 </div>
             </div>
