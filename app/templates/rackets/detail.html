@@ -248,13 +248,30 @@
             {% endif %}
 
             <!-- Playing Style -->
-            {% if racket.playing_style %}
+            {% if racket.playing_style_display %}
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6">
                 <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                     <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                     Phong Cách Chơi Phù Hợp
                 </h2>
-                <p class="text-gray-700 dark:text-gray-300 leading-relaxed">{{ racket.playing_style }}</p>
+                {% set ps_desc = {
+                    'attack':   'Vợt thiên về tấn công, phù hợp người chơi thích smash mạnh và kết thúc điểm nhanh.',
+                    'defense':  'Vợt thiên về phòng thủ, phù hợp người chơi ưu tiên kiểm soát cầu và phản công.',
+                    'allround': 'Vợt toàn diện, cân bằng giữa tấn công và phòng thủ, phù hợp mọi lối chơi.',
+                    'speed':    'Vợt ưu tiên tốc độ, phù hợp người chơi thích đánh nhanh và phối hợp linh hoạt.',
+                    'control':  'Vợt tập trung vào điều cầu, phù hợp người chơi kỹ thuật và kiểm soát đường cầu.'
+                } %}
+                <div class="flex items-center gap-3 mb-3">
+                    <span class="badge text-sm px-3 py-1
+                        {% if racket.playing_style == 'attack'   %}bg-red-100 text-red-700
+                        {% elif racket.playing_style == 'defense' %}bg-sky-100 text-sky-700
+                        {% elif racket.playing_style == 'allround' %}bg-green-100 text-green-700
+                        {% elif racket.playing_style == 'speed'  %}bg-purple-100 text-purple-700
+                        {% else %}bg-amber-100 text-amber-700{% endif %}">
+                        {{ racket.playing_style_display }}
+                    </span>
+                </div>
+                <p class="text-gray-700 dark:text-gray-300 leading-relaxed">{{ ps_desc.get(racket.playing_style, '') }}</p>
             </div>
             {% endif %}
 
