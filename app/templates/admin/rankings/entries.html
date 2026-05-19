@@ -1,0 +1,109 @@
+{% extends "admin/base.html" %}
+{% block page_title %}Nhập Xếp Hạng — {{ categories[category] }} — {{ week.display_label }}{% endblock %}
+
+{% block content %}
+<div class="mb-5 flex items-center gap-3">
+    <a href="{{ url_for('admin.rankings_list') }}" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+    </a>
+    <div>
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white">{{ categories[category] }} — {{ week.display_label }}</h2>
+        <p class="text-xs text-gray-400 dark:text-gray-500">{{ entries|length }} bản ghi</p>
+    </div>
+    <!-- Category switcher -->
+    <div class="ml-auto flex gap-1 bg-gray-100 dark:bg-gray-700 rounded-xl p-1">
+        {% for cat, label in categories.items() %}
+        <a href="{{ url_for('admin.rankings_entries', week_id=week.id, category=cat) }}"
+           class="px-3 py-1 rounded-lg text-xs font-semibold transition-colors
+           {{ 'bg-white dark:bg-gray-600 text-green-700 dark:text-green-400 shadow-sm' if cat == category else 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white' }}">
+            {{ label }}
+        </a>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+    <!-- Bulk import form -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
+        <h3 class="font-bold text-gray-900 dark:text-white mb-3">Nhập Dữ Liệu Hàng Loạt</h3>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">
+            Mỗi dòng là một VĐV. Dán dữ liệu theo định dạng:<br>
+            {% if category in ['md','wd'] %}
+            <code class="bg-gray-100 dark:bg-gray-700 px-1 rounded text-xs">Hạng &lt;Tab&gt; Tên VĐV 1 &lt;Tab&gt; Tên VĐV 2 &lt;Tab&gt; Quốc gia &lt;Tab&gt; Mã QG &lt;Tab&gt; Điểm &lt;Tab&gt; Số giải &lt;Tab&gt; Hạng tuần trước</code>
+            {% else %}
+            <code class="bg-gray-100 dark:bg-gray-700 px-1 rounded text-xs">Hạng &lt;Tab&gt; Tên VĐV &lt;Tab&gt; Quốc gia &lt;Tab&gt; Mã QG &lt;Tab&gt; Điểm &lt;Tab&gt; Số giải &lt;Tab&gt; Hạng tuần trước</code>
+            {% endif %}
+        </p>
+        <p class="text-xs text-gray-400 mb-1">Ví dụ{{ ' (đôi)' if category in ['md','wd'] }}:</p>
+        <pre class="text-xs bg-gray-50 dark:bg-gray-700 rounded p-2 mb-3 overflow-x-auto text-gray-600 dark:text-gray-300">{% if category in ['md','wd'] %}1	Marcus Gideon	Kevin Sukamuljo	Indonesia	INA	10000	25	1
+2	Mohammad Ahsan	Hendra Setiawan	Indonesia	INA	9500	23	2{% else %}1	Viktor Axelsen	Denmark	DEN	10000	25	1
+2	Lee Zii Jia	Malaysia	MAS	9800	22	3
+10	Nguyen Tien Minh	Vietnam	VN	5000	18	11{% endif %}</pre>
+
+        <form method="post" action="{{ url_for('admin.rankings_entries_import', week_id=week.id, category=category) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <textarea name="bulk_data" rows="12" placeholder="Dán dữ liệu vào đây..."
+                class="w-full px-3 py-2 text-xs font-mono border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500 resize-y"></textarea>
+            <div class="flex items-center gap-3 mt-3">
+                <button type="submit" class="btn-primary text-sm">Nhập &amp; Ghi Đè</button>
+                <span class="text-xs text-gray-400">Dữ liệu cũ của {{ categories[category] }} tuần này sẽ bị xóa.</span>
+            </div>
+        </form>
+    </div>
+
+    <!-- Current entries -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+            <h3 class="font-bold text-gray-900 dark:text-white">Dữ Liệu Hiện Tại ({{ entries|length }})</h3>
+            {% if entries %}
+            <form method="post" action="{{ url_for('admin.rankings_entries_clear', week_id=week.id, category=category) }}"
+                  onsubmit="return confirm('Xóa toàn bộ {{ categories[category] }} tuần này?')">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="text-xs text-red-500 hover:text-red-700 transition-colors">Xóa tất cả</button>
+            </form>
+            {% endif %}
+        </div>
+        {% if entries %}
+        <div class="overflow-y-auto max-h-[500px]">
+            <table class="w-full text-sm">
+                <thead class="sticky top-0 bg-gray-50 dark:bg-gray-700">
+                    <tr>
+                        <th class="text-left px-4 py-2 text-xs text-gray-500 dark:text-gray-400 font-semibold">#</th>
+                        <th class="text-left px-3 py-2 text-xs text-gray-500 dark:text-gray-400 font-semibold">VĐV</th>
+                        <th class="text-left px-3 py-2 text-xs text-gray-500 dark:text-gray-400 font-semibold">QG</th>
+                        <th class="text-right px-3 py-2 text-xs text-gray-500 dark:text-gray-400 font-semibold">Điểm</th>
+                        <th class="px-3 py-2"></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50 dark:divide-gray-700">
+                    {% for e in entries %}
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30">
+                        <td class="px-4 py-2 font-bold text-gray-700 dark:text-gray-300">{{ e.rank }}</td>
+                        <td class="px-3 py-2">
+                            <p class="font-medium text-gray-900 dark:text-white text-xs">{{ e.player_name }}</p>
+                            {% if e.player_name_2 %}<p class="text-xs text-gray-400">{{ e.player_name_2 }}</p>{% endif %}
+                        </td>
+                        <td class="px-3 py-2 text-xs text-gray-500 dark:text-gray-400">{{ e.country_code or '' }}</td>
+                        <td class="px-3 py-2 text-right text-xs font-semibold text-green-600 dark:text-green-400">{{ "{:,.0f}".format(e.points) }}</td>
+                        <td class="px-3 py-2 text-right">
+                            <form method="post" action="{{ url_for('admin.rankings_entry_delete', entry_id=e.id) }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="text-red-400 hover:text-red-600 transition-colors">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-10 text-gray-400 dark:text-gray-500 text-sm">
+            Chưa có dữ liệu. Dán vào form bên trái để nhập.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
