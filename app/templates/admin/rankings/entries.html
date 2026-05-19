@@ -28,18 +28,39 @@
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
         <h3 class="font-bold text-gray-900 dark:text-white mb-3">Nhập Dữ Liệu Hàng Loạt</h3>
         <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">
-            Mỗi dòng là một VĐV. Dán dữ liệu theo định dạng:<br>
-            {% if category in ['md','wd'] %}
-            <code class="bg-gray-100 dark:bg-gray-700 px-1 rounded text-xs">Hạng &lt;Tab&gt; Tên VĐV 1 &lt;Tab&gt; Tên VĐV 2 &lt;Tab&gt; Quốc gia &lt;Tab&gt; Mã QG &lt;Tab&gt; Điểm &lt;Tab&gt; Số giải &lt;Tab&gt; Hạng tuần trước</code>
-            {% else %}
-            <code class="bg-gray-100 dark:bg-gray-700 px-1 rounded text-xs">Hạng &lt;Tab&gt; Tên VĐV &lt;Tab&gt; Quốc gia &lt;Tab&gt; Mã QG &lt;Tab&gt; Điểm &lt;Tab&gt; Số giải &lt;Tab&gt; Hạng tuần trước</code>
-            {% endif %}
+            Hỗ trợ 2 định dạng — tự động nhận dạng:
         </p>
-        <p class="text-xs text-gray-400 mb-1">Ví dụ{{ ' (đôi)' if category in ['md','wd'] }}:</p>
-        <pre class="text-xs bg-gray-50 dark:bg-gray-700 rounded p-2 mb-3 overflow-x-auto text-gray-600 dark:text-gray-300">{% if category in ['md','wd'] %}1	Marcus Gideon	Kevin Sukamuljo	Indonesia	INA	10000	25	1
+
+        <!-- BWF format -->
+        <div class="mb-3">
+            <p class="text-xs font-semibold text-green-600 dark:text-green-400 mb-1">✓ Định dạng BWF (copy trực tiếp từ bwfbadminton.com)</p>
+            <pre class="text-xs bg-gray-50 dark:bg-gray-700 rounded p-2 overflow-x-auto text-gray-600 dark:text-gray-300 leading-relaxed">RANK	NAME	NATION	TOURNAMENTS	POINTS	BREAKDOWN
+1
+-
+SHI Yu Qi
+China
+12	108,905
+2
+▲1
+Kunlavut VITIDSARN
+Thailand
+16	96,865
+3
+▼2
+Anders ANTONSEN
+Denmark
+17	95,455</pre>
+            <p class="text-xs text-gray-400 mt-1">Mỗi VĐV = 5 dòng: Hạng / Thay đổi (-  ▲N  ▼N  NEW) / Tên / Quốc gia / Số giải &lt;Tab&gt; Điểm</p>
+        </div>
+
+        <!-- Custom format -->
+        <details class="mb-3">
+            <summary class="text-xs text-gray-400 cursor-pointer hover:text-gray-600 dark:hover:text-gray-300">Hoặc dùng định dạng tab-separated thủ công</summary>
+            <pre class="text-xs bg-gray-50 dark:bg-gray-700 rounded p-2 mt-1 overflow-x-auto text-gray-600 dark:text-gray-300">{% if category in ['md','wd'] %}1	Marcus Gideon	Kevin Sukamuljo	Indonesia	INA	10000	25	1
 2	Mohammad Ahsan	Hendra Setiawan	Indonesia	INA	9500	23	2{% else %}1	Viktor Axelsen	Denmark	DEN	10000	25	1
 2	Lee Zii Jia	Malaysia	MAS	9800	22	3
 10	Nguyen Tien Minh	Vietnam	VN	5000	18	11{% endif %}</pre>
+        </details>
 
         <form method="post" action="{{ url_for('admin.rankings_entries_import', week_id=week.id, category=category) }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
