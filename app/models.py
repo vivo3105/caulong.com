@@ -269,3 +269,59 @@ class Review(db.Model):
 
     def __repr__(self):
         return f'<Review {self.id} for Racket {self.racket_id}>'
+
+
+RANKING_CATEGORIES = {
+    'ms': 'Đơn Nam',
+    'md': 'Đôi Nam',
+    'ws': 'Đơn Nữ',
+    'wd': 'Đôi Nữ',
+}
+
+
+class RankingWeek(db.Model):
+    __tablename__ = 'ranking_weeks'
+
+    id = db.Column(db.Integer, primary_key=True)
+    week_date = db.Column(db.Date, nullable=False, unique=True)
+    label = db.Column(db.String(100))
+    is_current = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    entries = db.relationship('RankingEntry', backref='week', lazy='dynamic',
+                              cascade='all, delete-orphan')
+
+    @property
+    def display_label(self):
+        return self.label or self.week_date.strftime('%d/%m/%Y')
+
+    def __repr__(self):
+        return f'<RankingWeek {self.week_date}>'
+
+
+class RankingEntry(db.Model):
+    __tablename__ = 'ranking_entries'
+
+    id = db.Column(db.Integer, primary_key=True)
+    week_id = db.Column(db.Integer, db.ForeignKey('ranking_weeks.id'), nullable=False)
+    category = db.Column(db.String(10), nullable=False)   # ms md ws wd
+    rank = db.Column(db.Integer, nullable=False)
+    player_name = db.Column(db.String(200), nullable=False)
+    player_name_2 = db.Column(db.String(200))             # doubles partner
+    country = db.Column(db.String(100))
+    country_code = db.Column(db.String(5))                # ISO alpha-2 e.g. VN
+    points = db.Column(db.Float, default=0)
+    tournaments_played = db.Column(db.Integer, default=0)
+    previous_rank = db.Column(db.Integer)
+
+    @property
+    def movement(self):
+        if self.previous_rank is None:
+            return None
+        return self.previous_rank - self.rank   # positive = moved up
+
+    @property
+    def category_display(self):
+        return RANKING_CATEGORIES.get(self.category, self.category)
+
+    def __repr__(self):
+        return f'<RankingEntry {self.category} #{self.rank} {self.player_name}>'

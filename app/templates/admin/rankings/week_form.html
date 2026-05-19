@@ -1,0 +1,41 @@
+{% extends "admin/base.html" %}
+{% block page_title %}{{ 'Sửa Tuần' if week else 'Thêm Tuần Mới' }}{% endblock %}
+
+{% block content %}
+<div class="max-w-lg">
+    <div class="mb-6">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ 'Sửa Tuần Xếp Hạng' if week else 'Thêm Tuần Xếp Hạng' }}</h2>
+    </div>
+
+    <form method="post" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 space-y-5">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Ngày (tuần bắt đầu) <span class="text-red-500">*</span></label>
+            <input type="date" name="week_date" required
+                value="{{ week.week_date.strftime('%Y-%m-%d') if week else '' }}"
+                class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500">
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Nhãn hiển thị</label>
+            <input type="text" name="label" placeholder="VD: Tuần 1, 2025"
+                value="{{ week.label or '' if week else '' }}"
+                class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500">
+            <p class="text-xs text-gray-400 mt-1">Để trống sẽ tự dùng ngày.</p>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <input type="checkbox" name="is_current" id="is_current" value="1"
+                {{ 'checked' if week and week.is_current }}
+                class="w-4 h-4 text-green-600 rounded border-gray-300 focus:ring-green-500">
+            <label for="is_current" class="text-sm font-medium text-gray-700 dark:text-gray-300">Đây là tuần hiện tại (mới nhất)</label>
+        </div>
+
+        <div class="flex items-center gap-3 pt-2">
+            <button type="submit" class="btn-primary">{{ 'Lưu Thay Đổi' if week else 'Thêm Tuần' }}</button>
+            <a href="{{ url_for('admin.rankings_list') }}" class="btn-secondary">Hủy</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -8,7 +8,7 @@ from flask import render_template, redirect, url_for, flash, request, current_ap
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 from app.blueprints.admin import admin_bp
-from app.models import Racket, Brand, BlogPost, Review, User, RacketImage, generate_slug
+from app.models import Racket, Brand, BlogPost, Review, User, RacketImage, generate_slug, RankingWeek, RankingEntry, RANKING_CATEGORIES
 from app.extensions import db, csrf
 
 try:
@@ -726,3 +726,189 @@ def export_rackets():
         mimetype='text/csv',
         headers={'Content-Disposition': f'attachment; filename=rackets_{timestamp}.csv'}
     )
+
+
+# ── Rankings management ────────────────────────────────────────────────────────
+
+@admin_bp.route('/bang-xep-hang')
+@admin_required
+def rankings_list():
+    weeks = RankingWeek.query.order_by(RankingWeek.week_date.desc()).all()
+    week_counts = {}
+    for week in weeks:
+        week_counts[week.id] = {
+            cat: RankingEntry.query.filter_by(week_id=week.id, category=cat).count()
+            for cat in RANKING_CATEGORIES
+        }
+    return render_template('admin/rankings/index.html', weeks=weeks, week_counts=week_counts)
+
+
+@admin_bp.route('/bang-xep-hang/them', methods=['GET', 'POST'])
+@admin_required
+def rankings_week_add():
+    if request.method == 'POST':
+        from datetime import date as date_type
+        week_date_str = request.form.get('week_date', '').strip()
+        if not week_date_str:
+            flash('Ngày không được để trống.', 'error')
+            return redirect(url_for('admin.rankings_week_add'))
+        try:
+            week_date = date_type.fromisoformat(week_date_str)
+        except ValueError:
+            flash('Ngày không hợp lệ.', 'error')
+            return redirect(url_for('admin.rankings_week_add'))
+        if RankingWeek.query.filter_by(week_date=week_date).first():
+            flash('Tuần này đã tồn tại.', 'error')
+            return redirect(url_for('admin.rankings_week_add'))
+        is_current = bool(request.form.get('is_current'))
+        if is_current:
+            RankingWeek.query.update({'is_current': False})
+        week = RankingWeek(
+            week_date=week_date,
+            label=request.form.get('label', '').strip() or None,
+            is_current=is_current,
+        )
+        db.session.add(week)
+        db.session.commit()
+        flash(f'Đã thêm tuần {week.display_label}.', 'success')
+        return redirect(url_for('admin.rankings_list'))
+    return render_template('admin/rankings/week_form.html', week=None)
+
+
+@admin_bp.route('/bang-xep-hang/<int:id>/sua', methods=['GET', 'POST'])
+@admin_required
+def rankings_week_edit(id):
+    week = RankingWeek.query.get_or_404(id)
+    if request.method == 'POST':
+        from datetime import date as date_type
+        week_date_str = request.form.get('week_date', '').strip()
+        try:
+            week_date = date_type.fromisoformat(week_date_str)
+        except ValueError:
+            flash('Ngày không hợp lệ.', 'error')
+            return redirect(url_for('admin.rankings_week_edit', id=id))
+        existing = RankingWeek.query.filter_by(week_date=week_date).first()
+        if existing and existing.id != id:
+            flash('Tuần này đã tồn tại.', 'error')
+            return redirect(url_for('admin.rankings_week_edit', id=id))
+        is_current = bool(request.form.get('is_current'))
+        if is_current:
+            RankingWeek.query.filter(RankingWeek.id != id).update({'is_current': False})
+        week.week_date = week_date
+        week.label = request.form.get('label', '').strip() or None
+        week.is_current = is_current
+        db.session.commit()
+        flash('Đã cập nhật.', 'success')
+        return redirect(url_for('admin.rankings_list'))
+    return render_template('admin/rankings/week_form.html', week=week)
+
+
+@admin_bp.route('/bang-xep-hang/<int:id>/xoa', methods=['POST'])
+@admin_required
+def rankings_week_delete(id):
+    week = RankingWeek.query.get_or_404(id)
+    label = week.display_label
+    db.session.delete(week)
+    db.session.commit()
+    flash(f'Đã xóa tuần {label}.', 'success')
+    return redirect(url_for('admin.rankings_list'))
+
+
+@admin_bp.route('/bang-xep-hang/<int:week_id>/nhap/<category>', methods=['GET'])
+@admin_required
+def rankings_entries(week_id, category):
+    if category not in RANKING_CATEGORIES:
+        flash('Danh mục không hợp lệ.', 'error')
+        return redirect(url_for('admin.rankings_list'))
+    week = RankingWeek.query.get_or_404(week_id)
+    entries = RankingEntry.query.filter_by(week_id=week_id, category=category).order_by(RankingEntry.rank).all()
+    return render_template('admin/rankings/entries.html',
+                           week=week, category=category,
+                           categories=RANKING_CATEGORIES, entries=entries)
+
+
+@admin_bp.route('/bang-xep-hang/<int:week_id>/nhap/<category>/import', methods=['POST'])
+@admin_required
+def rankings_entries_import(week_id, category):
+    if category not in RANKING_CATEGORIES:
+        flash('Danh mục không hợp lệ.', 'error')
+        return redirect(url_for('admin.rankings_list'))
+    week = RankingWeek.query.get_or_404(week_id)
+    bulk_data = request.form.get('bulk_data', '').strip()
+    if not bulk_data:
+        flash('Không có dữ liệu.', 'error')
+        return redirect(url_for('admin.rankings_entries', week_id=week_id, category=category))
+
+    # Delete existing entries for this week+category
+    RankingEntry.query.filter_by(week_id=week_id, category=category).delete()
+
+    is_doubles = category in ('md', 'wd')
+    count = 0
+    errors = []
+    for line_num, line in enumerate(bulk_data.splitlines(), 1):
+        line = line.strip()
+        if not line:
+            continue
+        parts = [p.strip() for p in line.split('\t')]
+        try:
+            if is_doubles:
+                # rank, player1, player2, country, country_code, points, tournaments, prev_rank
+                rank = int(parts[0])
+                player1 = parts[1]
+                player2 = parts[2] if len(parts) > 2 else ''
+                country = parts[3] if len(parts) > 3 else ''
+                code = parts[4] if len(parts) > 4 else ''
+                points = float(parts[5]) if len(parts) > 5 and parts[5] else 0
+                tournaments = int(parts[6]) if len(parts) > 6 and parts[6] else 0
+                prev_rank = int(parts[7]) if len(parts) > 7 and parts[7] else None
+            else:
+                # rank, player, country, country_code, points, tournaments, prev_rank
+                rank = int(parts[0])
+                player1 = parts[1]
+                player2 = ''
+                country = parts[2] if len(parts) > 2 else ''
+                code = parts[3] if len(parts) > 3 else ''
+                points = float(parts[4]) if len(parts) > 4 and parts[4] else 0
+                tournaments = int(parts[5]) if len(parts) > 5 and parts[5] else 0
+                prev_rank = int(parts[6]) if len(parts) > 6 and parts[6] else None
+
+            entry = RankingEntry(
+                week_id=week_id, category=category,
+                rank=rank, player_name=player1, player_name_2=player2 or None,
+                country=country, country_code=code.upper() if code else None,
+                points=points, tournaments_played=tournaments,
+                previous_rank=prev_rank,
+            )
+            db.session.add(entry)
+            count += 1
+        except (IndexError, ValueError) as e:
+            errors.append(f'Dòng {line_num}: {e}')
+
+    db.session.commit()
+    if errors:
+        flash(f'Nhập {count} bản ghi. Lỗi: {"; ".join(errors[:3])}', 'warning' if count else 'error')
+    else:
+        flash(f'Đã nhập {count} bản ghi cho {RANKING_CATEGORIES[category]}.', 'success')
+    return redirect(url_for('admin.rankings_entries', week_id=week_id, category=category))
+
+
+@admin_bp.route('/bang-xep-hang/<int:week_id>/xoa-het/<category>', methods=['POST'])
+@admin_required
+def rankings_entries_clear(week_id, category):
+    RankingWeek.query.get_or_404(week_id)
+    RankingEntry.query.filter_by(week_id=week_id, category=category).delete()
+    db.session.commit()
+    flash(f'Đã xóa toàn bộ {RANKING_CATEGORIES.get(category, category)}.', 'success')
+    return redirect(url_for('admin.rankings_entries', week_id=week_id, category=category))
+
+
+@admin_bp.route('/bang-xep-hang/entry/<int:entry_id>/xoa', methods=['POST'])
+@admin_required
+def rankings_entry_delete(entry_id):
+    entry = RankingEntry.query.get_or_404(entry_id)
+    week_id = entry.week_id
+    category = entry.category
+    db.session.delete(entry)
+    db.session.commit()
+    flash('Đã xóa bản ghi.', 'success')
+    return redirect(url_for('admin.rankings_entries', week_id=week_id, category=category))

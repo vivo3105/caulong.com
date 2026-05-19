@@ -1,0 +1,89 @@
+{% extends "admin/base.html" %}
+{% block page_title %}Bảng Xếp Hạng{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+    <div>
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Bảng Xếp Hạng</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Quản lý dữ liệu xếp hạng BWF theo tuần</p>
+    </div>
+    <a href="{{ url_for('admin.rankings_week_add') }}" class="btn-primary text-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Thêm Tuần Mới
+    </a>
+</div>
+
+{% if weeks %}
+<div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <table class="w-full">
+        <thead>
+            <tr class="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
+                <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Tuần</th>
+                <th class="text-center px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden sm:table-cell">Đơn Nam</th>
+                <th class="text-center px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden sm:table-cell">Đôi Nam</th>
+                <th class="text-center px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden sm:table-cell">Đơn Nữ</th>
+                <th class="text-center px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden sm:table-cell">Đôi Nữ</th>
+                <th class="text-right px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Thao Tác</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+            {% for week in weeks %}
+            {% set counts = week_counts[week.id] %}
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30">
+                <td class="px-5 py-3">
+                    <div class="flex items-center gap-2">
+                        {% if week.is_current %}
+                        <span class="px-2 py-0.5 bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 text-xs font-semibold rounded-full">Hiện tại</span>
+                        {% endif %}
+                        <div>
+                            <p class="font-semibold text-gray-900 dark:text-white text-sm">{{ week.display_label }}</p>
+                            <p class="text-xs text-gray-400 dark:text-gray-500">{{ week.week_date.strftime('%d/%m/%Y') }}</p>
+                        </div>
+                    </div>
+                </td>
+                {% for cat in ['ms','md','ws','wd'] %}
+                <td class="px-4 py-3 text-center hidden sm:table-cell">
+                    <a href="{{ url_for('admin.rankings_entries', week_id=week.id, category=cat) }}"
+                       class="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-lg
+                       {{ 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400' if counts[cat] > 0 else 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500' }}
+                       hover:ring-2 hover:ring-green-400 transition-all">
+                        {% if counts[cat] > 0 %}
+                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                        {{ counts[cat] }}
+                        {% else %}
+                        + Nhập
+                        {% endif %}
+                    </a>
+                </td>
+                {% endfor %}
+                <td class="px-5 py-3 text-right">
+                    <div class="flex items-center justify-end gap-2">
+                        <a href="{{ url_for('admin.rankings_week_edit', id=week.id) }}"
+                           class="text-xs px-2.5 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-green-500 hover:text-green-600 transition-colors">
+                            Sửa
+                        </a>
+                        <form method="post" action="{{ url_for('admin.rankings_week_delete', id=week.id) }}"
+                              onsubmit="return confirm('Xóa tuần này và toàn bộ dữ liệu xếp hạng?')">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit"
+                                class="text-xs px-2.5 py-1.5 rounded-lg border border-red-300 dark:border-red-800 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors">
+                                Xóa
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="text-center py-16 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+    <svg class="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+    </svg>
+    <p class="text-gray-400 dark:text-gray-500 mb-4">Chưa có tuần nào. Thêm tuần đầu tiên!</p>
+    <a href="{{ url_for('admin.rankings_week_add') }}" class="btn-primary text-sm">Thêm Tuần</a>
+</div>
+{% endif %}
+{% endblock %}

@@ -50,6 +50,9 @@ def create_app(config_class=Config):
     from app.blueprints.admin import admin_bp
     app.register_blueprint(admin_bp)
 
+    from app.blueprints.rankings import rankings_bp
+    app.register_blueprint(rankings_bp)
+
     # Error handlers
     @app.errorhandler(404)
     def not_found_error(error):
