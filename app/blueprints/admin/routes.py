@@ -833,63 +833,211 @@ def rankings_entries_import(week_id, category):
     if category not in RANKING_CATEGORIES:
         flash('Danh mục không hợp lệ.', 'error')
         return redirect(url_for('admin.rankings_list'))
-    week = RankingWeek.query.get_or_404(week_id)
+    RankingWeek.query.get_or_404(week_id)
     bulk_data = request.form.get('bulk_data', '').strip()
     if not bulk_data:
         flash('Không có dữ liệu.', 'error')
         return redirect(url_for('admin.rankings_entries', week_id=week_id, category=category))
 
-    # Delete existing entries for this week+category
     RankingEntry.query.filter_by(week_id=week_id, category=category).delete()
 
+    entries_to_add, errors = _parse_bwf_or_custom(bulk_data, category)
+
+    for e in entries_to_add:
+        e.week_id = week_id
+        db.session.add(e)
+    db.session.commit()
+
+    if errors:
+        flash(f'Nhập {len(entries_to_add)} bản ghi. Lỗi: {"; ".join(errors[:3])}',
+              'warning' if entries_to_add else 'error')
+    else:
+        flash(f'Đã nhập {len(entries_to_add)} bản ghi cho {RANKING_CATEGORIES[category]}.', 'success')
+    return redirect(url_for('admin.rankings_entries', week_id=week_id, category=category))
+
+
+# Country name → ISO alpha-2 code for common badminton nations
+_COUNTRY_CODES = {
+    'china': 'CN', 'thailand': 'TH', 'denmark': 'DK', 'france': 'FR',
+    'indonesia': 'ID', 'malaysia': 'MY', 'japan': 'JP', 'south korea': 'KR',
+    'korea': 'KR', 'india': 'IN', 'taiwan': 'TW', 'chinese taipei': 'TW',
+    'germany': 'DE', 'spain': 'ES', 'england': 'GB', 'scotland': 'GB',
+    'australia': 'AU', 'canada': 'CA', 'hong kong': 'HK', 'hong kong china': 'HK',
+    'singapore': 'SG', 'vietnam': 'VN', 'viet nam': 'VN',
+    'netherlands': 'NL', 'sweden': 'SE', 'norway': 'NO', 'finland': 'FI',
+    'russia': 'RU', 'ukraine': 'UA', 'poland': 'PL', 'switzerland': 'CH',
+    'brazil': 'BR', 'mexico': 'MX', 'united states': 'US', 'usa': 'US',
+    'new zealand': 'NZ', 'sri lanka': 'LK', 'pakistan': 'PK',
+    'mauritius': 'MU', 'peru': 'PE', 'portugal': 'PT', 'italy': 'IT',
+    'nigeria': 'NG', 'egypt': 'EG', 'south africa': 'ZA',
+    'cambodia': 'KH', 'myanmar': 'MM', 'philippines': 'PH', 'thailand': 'TH',
+}
+
+
+def _country_code(name: str) -> str:
+    return _COUNTRY_CODES.get(name.lower().strip(), '')
+
+
+def _parse_movement(raw: str, rank: int):
+    """Return previous_rank from BWF movement string like '-', '▲2', '▼3', 'NEW'."""
+    raw = raw.strip()
+    if raw in ('-', '=', ''):
+        return rank
+    if raw.upper() == 'NEW':
+        return None
+    # Arrow characters: ▲ ▼ or plain +/-
+    import re
+    m = re.match(r'[▲+](\d+)', raw)
+    if m:
+        return rank + int(m.group(1))
+    m = re.match(r'[▼-](\d+)', raw)
+    if m:
+        return max(1, rank - int(m.group(1)))
+    return None
+
+
+def _parse_points(raw: str) -> float:
+    """Parse '108,905' or '108905' or '108.905' → float."""
+    return float(raw.replace(',', '').replace(' ', '')) if raw.strip() else 0.0
+
+
+def _is_bwf_format(lines: list) -> bool:
+    """Detect BWF copy-paste format: header row OR pattern rank/movement/name/nation/stats."""
+    if not lines:
+        return False
+    if lines[0].upper().startswith('RANK'):
+        return True
+    # Check if first non-empty line is a pure integer (rank)
+    for line in lines[:3]:
+        stripped = line.strip()
+        if stripped and stripped.isdigit():
+            return True
+    return False
+
+
+def _parse_bwf_or_custom(bulk_data: str, category: str):
+    """Parse data and return (list[RankingEntry], list[error_strings])."""
     is_doubles = category in ('md', 'wd')
-    count = 0
-    errors = []
-    for line_num, line in enumerate(bulk_data.splitlines(), 1):
-        line = line.strip()
-        if not line:
+    lines = bulk_data.splitlines()
+    non_empty = [l for l in lines if l.strip()]
+
+    if _is_bwf_format(non_empty):
+        return _parse_bwf_format(non_empty, category, is_doubles)
+    return _parse_custom_format(non_empty, category, is_doubles)
+
+
+def _parse_bwf_format(lines: list, category: str, is_doubles: bool):
+    """
+    BWF copy-paste format (5 lines per player for singles, 6 for doubles):
+      rank
+      movement  (-  /  ▲N  /  ▼N  /  NEW)
+      player name  [for doubles: also next line is partner name]
+      nation
+      tournaments<TAB>points[<TAB>breakdown]
+    Header row 'RANK NAME …' is skipped automatically.
+    """
+    entries, errors = [], []
+
+    # Strip header
+    start = 0
+    if lines and lines[0].strip().upper().startswith('RANK'):
+        start = 1
+
+    lines = lines[start:]
+    i = 0
+    lines_per = 6 if is_doubles else 5
+
+    while i < len(lines):
+        chunk = lines[i:i + lines_per]
+        # Skip blank chunks
+        if not any(l.strip() for l in chunk):
+            i += 1
             continue
+
+        try:
+            rank_str = chunk[0].strip()
+            if not rank_str.isdigit():
+                i += 1
+                continue
+
+            rank = int(rank_str)
+            movement_raw = chunk[1].strip() if len(chunk) > 1 else '-'
+            prev_rank = _parse_movement(movement_raw, rank)
+
+            if is_doubles:
+                player1 = chunk[2].strip() if len(chunk) > 2 else ''
+                player2 = chunk[3].strip() if len(chunk) > 3 else ''
+                nation_line = chunk[4].strip() if len(chunk) > 4 else ''
+                stats_line = chunk[5].strip() if len(chunk) > 5 else ''
+            else:
+                player1 = chunk[2].strip() if len(chunk) > 2 else ''
+                player2 = ''
+                nation_line = chunk[3].strip() if len(chunk) > 3 else ''
+                stats_line = chunk[4].strip() if len(chunk) > 4 else ''
+
+            # Stats line: "12\t108,905\t" → tournaments, points
+            stat_parts = [p.strip() for p in stats_line.split('\t')]
+            tournaments = int(stat_parts[0]) if stat_parts and stat_parts[0].isdigit() else 0
+            points_raw = stat_parts[1] if len(stat_parts) > 1 else '0'
+            points = _parse_points(points_raw)
+
+            code = _country_code(nation_line)
+
+            entries.append(RankingEntry(
+                category=category,
+                rank=rank,
+                player_name=player1,
+                player_name_2=player2 or None,
+                country=nation_line,
+                country_code=code or None,
+                points=points,
+                tournaments_played=tournaments,
+                previous_rank=prev_rank,
+            ))
+            i += lines_per
+        except Exception as e:
+            errors.append(f'Nhóm dòng {i + 1}: {e}')
+            i += 1
+
+    return entries, errors
+
+
+def _parse_custom_format(lines: list, category: str, is_doubles: bool):
+    """Original tab-separated custom format."""
+    entries, errors = [], []
+    for idx, line in enumerate(lines, 1):
         parts = [p.strip() for p in line.split('\t')]
         try:
             if is_doubles:
-                # rank, player1, player2, country, country_code, points, tournaments, prev_rank
                 rank = int(parts[0])
                 player1 = parts[1]
                 player2 = parts[2] if len(parts) > 2 else ''
                 country = parts[3] if len(parts) > 3 else ''
                 code = parts[4] if len(parts) > 4 else ''
-                points = float(parts[5]) if len(parts) > 5 and parts[5] else 0
-                tournaments = int(parts[6]) if len(parts) > 6 and parts[6] else 0
-                prev_rank = int(parts[7]) if len(parts) > 7 and parts[7] else None
+                points = _parse_points(parts[5]) if len(parts) > 5 and parts[5] else 0
+                tournaments = int(parts[6]) if len(parts) > 6 and parts[6].isdigit() else 0
+                prev_rank = int(parts[7]) if len(parts) > 7 and parts[7].isdigit() else None
             else:
-                # rank, player, country, country_code, points, tournaments, prev_rank
                 rank = int(parts[0])
                 player1 = parts[1]
                 player2 = ''
                 country = parts[2] if len(parts) > 2 else ''
                 code = parts[3] if len(parts) > 3 else ''
-                points = float(parts[4]) if len(parts) > 4 and parts[4] else 0
-                tournaments = int(parts[5]) if len(parts) > 5 and parts[5] else 0
-                prev_rank = int(parts[6]) if len(parts) > 6 and parts[6] else None
+                points = _parse_points(parts[4]) if len(parts) > 4 and parts[4] else 0
+                tournaments = int(parts[5]) if len(parts) > 5 and parts[5].isdigit() else 0
+                prev_rank = int(parts[6]) if len(parts) > 6 and parts[6].isdigit() else None
 
-            entry = RankingEntry(
-                week_id=week_id, category=category,
+            entries.append(RankingEntry(
+                category=category,
                 rank=rank, player_name=player1, player_name_2=player2 or None,
-                country=country, country_code=code.upper() if code else None,
+                country=country, country_code=(code.upper() or _country_code(country)) or None,
                 points=points, tournaments_played=tournaments,
                 previous_rank=prev_rank,
-            )
-            db.session.add(entry)
-            count += 1
+            ))
         except (IndexError, ValueError) as e:
-            errors.append(f'Dòng {line_num}: {e}')
+            errors.append(f'Dòng {idx}: {e}')
 
-    db.session.commit()
-    if errors:
-        flash(f'Nhập {count} bản ghi. Lỗi: {"; ".join(errors[:3])}', 'warning' if count else 'error')
-    else:
-        flash(f'Đã nhập {count} bản ghi cho {RANKING_CATEGORIES[category]}.', 'success')
-    return redirect(url_for('admin.rankings_entries', week_id=week_id, category=category))
+    return entries, errors
 
 
 @admin_bp.route('/bang-xep-hang/<int:week_id>/xoa-het/<category>', methods=['POST'])
