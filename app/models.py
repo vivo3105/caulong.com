@@ -292,7 +292,11 @@ class RankingWeek(db.Model):
 
     @property
     def display_label(self):
-        return self.label or self.week_date.strftime('%d/%m/%Y')
+        if self.label:
+            return self.label
+        week_num = self.week_date.isocalendar()[1]
+        date_str = self.week_date.strftime('%d-%m-%Y')
+        return f'Tuần {week_num} ({date_str})'
 
     def __repr__(self):
         return f'<RankingWeek {self.week_date}>'

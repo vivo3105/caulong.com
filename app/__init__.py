@@ -31,6 +31,14 @@ def create_app(config_class=Config):
         brands = Brand.query.order_by(Brand.name).all()
         return dict(nav_brands=brands, now=datetime.utcnow())
 
+    # Custom template filters
+    @app.template_filter('flag')
+    def flag_emoji(code):
+        if not code or len(code) < 2:
+            return ''
+        c = code.upper()[:2]
+        return chr(ord(c[0]) + 0x1F1A5) + chr(ord(c[1]) + 0x1F1A5)
+
     # Register blueprints
     from app.blueprints.main import main_bp
     app.register_blueprint(main_bp)

@@ -70,7 +70,7 @@
         <form method="get" class="flex gap-1">
             <input type="hidden" name="cat" value="{{ category }}">
             {% if selected_week %}<input type="hidden" name="week" value="{{ selected_week.id }}">{% endif %}
-            <input type="text" name="country" value="{{ country_filter }}" placeholder="Lọc quốc gia..."
+            <input type="text" name="country" value="{{ country_filter }}" placeholder="🔍 Lọc quốc gia..."
                 class="text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-1.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500 w-44">
             <button type="submit" class="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg transition-colors">Lọc</button>
             {% if country_filter %}
@@ -107,17 +107,7 @@
                         {% if entry.country_code and entry.country_code|upper in ['VN','VIE'] %}bg-red-50/40 dark:bg-red-900/10{% endif %}">
                         <!-- Rank -->
                         <td class="px-4 py-3">
-                            <span class="text-lg font-bold
-                                {% if entry.rank == 1 %}text-yellow-500
-                                {% elif entry.rank == 2 %}text-gray-400
-                                {% elif entry.rank == 3 %}text-amber-600
-                                {% else %}text-gray-700 dark:text-gray-300{% endif %}">
-                                {% if entry.rank <= 3 %}
-                                <span class="text-xl">{{ ['🥇','🥈','🥉'][entry.rank-1] }}</span>
-                                {% else %}
-                                {{ entry.rank }}
-                                {% endif %}
-                            </span>
+                            <span class="font-bold text-gray-700 dark:text-gray-300">{{ entry.rank }}</span>
                         </td>
                         <!-- Movement -->
                         <td class="px-2 py-3">
@@ -136,20 +126,18 @@
                             <div>
                                 <p class="font-semibold text-gray-900 dark:text-white text-sm">{{ entry.player_name }}</p>
                                 {% if entry.player_name_2 %}
-                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ entry.player_name_2 }}</p>
+                                <p class="font-semibold text-gray-900 dark:text-white text-sm mt-0.5">{{ entry.player_name_2 }}</p>
                                 {% endif %}
                                 <p class="text-xs text-gray-400 dark:text-gray-500 sm:hidden mt-0.5">
-                                    {{ entry.country_code or entry.country }}
+                                    {{ entry.country_code | flag }} {{ entry.country_code or entry.country }}
                                 </p>
                             </div>
                         </td>
                         <!-- Country -->
                         <td class="px-4 py-3 hidden sm:table-cell">
                             <div class="flex items-center gap-2">
-                                {% if entry.country_code %}
-                                <span class="text-xs font-bold px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded">{{ entry.country_code|upper }}</span>
-                                {% endif %}
-                                <span class="text-sm text-gray-600 dark:text-gray-300">{{ entry.country }}</span>
+                                <span class="text-xl leading-none">{{ entry.country_code | flag }}</span>
+                                <span class="text-sm text-gray-700 dark:text-gray-300">{{ entry.country }}</span>
                             </div>
                         </td>
                         <!-- Points -->
