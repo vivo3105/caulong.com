@@ -107,17 +107,7 @@
                         {% if entry.country_code and entry.country_code|upper in ['VN','VIE'] %}bg-red-50/40 dark:bg-red-900/10{% endif %}">
                         <!-- Rank -->
                         <td class="px-4 py-3">
-                            <span class="text-lg font-bold
-                                {% if entry.rank == 1 %}text-yellow-500
-                                {% elif entry.rank == 2 %}text-gray-400
-                                {% elif entry.rank == 3 %}text-amber-600
-                                {% else %}text-gray-700 dark:text-gray-300{% endif %}">
-                                {% if entry.rank <= 3 %}
-                                <span class="text-xl">{{ ['🥇','🥈','🥉'][entry.rank-1] }}</span>
-                                {% else %}
-                                {{ entry.rank }}
-                                {% endif %}
-                            </span>
+                            <span class="font-bold text-gray-700 dark:text-gray-300">{{ entry.rank }}</span>
                         </td>
                         <!-- Movement -->
                         <td class="px-2 py-3">
