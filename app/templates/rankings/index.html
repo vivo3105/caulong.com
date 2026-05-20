@@ -123,22 +123,22 @@
                         </td>
                         <!-- Player -->
                         <td class="px-4 py-3">
-                            <div>
-                                <p class="font-semibold text-gray-900 dark:text-white text-sm">{{ entry.player_name }}</p>
-                                {% if entry.player_name_2 %}
-                                <p class="font-semibold text-gray-900 dark:text-white text-sm mt-0.5">{{ entry.player_name_2 }}</p>
-                                {% endif %}
-                                <p class="text-xs text-gray-400 dark:text-gray-500 sm:hidden mt-0.5">
-                                    {{ entry.country_code | flag }} {{ entry.country_code or entry.country }}
-                                </p>
+                            <div class="flex items-start gap-2">
+                                <span class="text-lg leading-tight mt-0.5 flex-shrink-0">{{ entry.country_code | flag }}</span>
+                                <div>
+                                    <p class="font-semibold text-gray-900 dark:text-white text-sm">{{ entry.player_name }}</p>
+                                    {% if entry.player_name_2 %}
+                                    <p class="font-semibold text-gray-900 dark:text-white text-sm mt-0.5">{{ entry.player_name_2 }}</p>
+                                    {% endif %}
+                                    <p class="text-xs text-gray-400 dark:text-gray-500 sm:hidden mt-0.5">
+                                        {{ entry.country_code or entry.country }}
+                                    </p>
+                                </div>
                             </div>
                         </td>
                         <!-- Country -->
                         <td class="px-4 py-3 hidden sm:table-cell">
-                            <div class="flex items-center gap-2">
-                                <span class="text-xl leading-none">{{ entry.country_code | flag }}</span>
-                                <span class="text-sm text-gray-700 dark:text-gray-300">{{ entry.country }}</span>
-                            </div>
+                            <span class="text-sm text-gray-700 dark:text-gray-300">{{ entry.country }}</span>
                         </td>
                         <!-- Points -->
                         <td class="px-4 py-3 text-right">
@@ -162,6 +162,35 @@
         </div>
         {% endif %}
     </div>
+
+    {% if pagination and pagination.pages > 1 %}
+    {% set base = '?cat=' ~ category ~ ('&week=' ~ selected_week.id if selected_week) ~ ('&vn=1' if vietnam_only elif '&country=' ~ country_filter if country_filter) %}
+    <div class="flex items-center justify-center gap-1 mt-5">
+        {% if pagination.has_prev %}
+        <a href="{{ base }}&page={{ pagination.prev_num }}"
+           class="px-3 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 text-sm">&laquo;</a>
+        {% endif %}
+        {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+            {% if p %}
+                {% if p == pagination.page %}
+                <span class="px-3 py-2 rounded-lg bg-green-600 text-white text-sm font-semibold">{{ p }}</span>
+                {% else %}
+                <a href="{{ base }}&page={{ p }}"
+                   class="px-3 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 text-sm">{{ p }}</a>
+                {% endif %}
+            {% else %}
+            <span class="px-2 py-2 text-gray-400">…</span>
+            {% endif %}
+        {% endfor %}
+        {% if pagination.has_next %}
+        <a href="{{ base }}&page={{ pagination.next_num }}"
+           class="px-3 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 text-sm">&raquo;</a>
+        {% endif %}
+    </div>
+    <p class="text-xs text-gray-400 dark:text-gray-500 text-center mt-2">
+        Trang {{ pagination.page }}/{{ pagination.pages }} · {{ pagination.total }} VĐV
+    </p>
+    {% endif %}
 
     {% if selected_week %}
     <p class="text-xs text-gray-400 dark:text-gray-500 mt-3 text-right">
