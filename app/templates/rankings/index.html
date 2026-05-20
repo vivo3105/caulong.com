@@ -123,22 +123,28 @@
                         </td>
                         <!-- Player -->
                         <td class="px-4 py-3">
-                            <div class="flex items-start gap-2">
-                                <span class="text-lg leading-tight mt-0.5 flex-shrink-0">{{ entry.country_code | flag }}</span>
-                                <div>
-                                    <p class="font-semibold text-gray-900 dark:text-white text-sm">{{ entry.player_name }}</p>
-                                    {% if entry.player_name_2 %}
-                                    <p class="font-semibold text-gray-900 dark:text-white text-sm mt-0.5">{{ entry.player_name_2 }}</p>
-                                    {% endif %}
-                                    <p class="text-xs text-gray-400 dark:text-gray-500 sm:hidden mt-0.5">
-                                        {{ entry.country_code or entry.country }}
-                                    </p>
-                                </div>
+                            <div>
+                                <p class="font-semibold text-gray-900 dark:text-white text-sm">{{ entry.player_name }}</p>
+                                {% if entry.player_name_2 %}
+                                <p class="font-semibold text-gray-900 dark:text-white text-sm mt-0.5">{{ entry.player_name_2 }}</p>
+                                {% endif %}
+                                <p class="text-xs text-gray-400 dark:text-gray-500 sm:hidden mt-0.5">
+                                    {{ entry.country_code or entry.country }}
+                                </p>
                             </div>
                         </td>
                         <!-- Country -->
                         <td class="px-4 py-3 hidden sm:table-cell">
-                            <span class="text-sm text-gray-700 dark:text-gray-300">{{ entry.country }}</span>
+                            <div class="flex items-center gap-2">
+                                {% if entry.country_code %}
+                                <img src="https://flagcdn.com/w20/{{ entry.country_code | lower }}.png"
+                                     srcset="https://flagcdn.com/w40/{{ entry.country_code | lower }}.png 2x"
+                                     width="20" height="15"
+                                     alt="{{ entry.country }}"
+                                     class="rounded-sm flex-shrink-0 object-cover">
+                                {% endif %}
+                                <span class="text-sm text-gray-700 dark:text-gray-300">{{ entry.country }}</span>
+                            </div>
                         </td>
                         <!-- Points -->
                         <td class="px-4 py-3 text-right">
