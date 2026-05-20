@@ -917,7 +917,7 @@ def _is_bwf_format(lines: list) -> bool:
 
 def _parse_bwf_or_custom(bulk_data: str, category: str):
     """Parse data and return (list[RankingEntry], list[error_strings])."""
-    is_doubles = category in ('md', 'wd')
+    is_doubles = category in ('md', 'wd', 'xd')
     lines = bulk_data.splitlines()
     non_empty = [l for l in lines if l.strip()]
 

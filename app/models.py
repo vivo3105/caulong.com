@@ -276,6 +276,7 @@ RANKING_CATEGORIES = {
     'md': 'Đôi Nam',
     'ws': 'Đơn Nữ',
     'wd': 'Đôi Nữ',
+    'xd': 'Đôi Nam Nữ',
 }
 
 
