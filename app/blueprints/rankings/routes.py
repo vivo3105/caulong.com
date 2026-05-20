@@ -13,6 +13,8 @@ CATEGORIES = {
     'xd': 'Đôi Nam Nữ',
 }
 
+PER_PAGE = 50
+
 
 @rankings_bp.route('/')
 def index():
@@ -22,6 +24,7 @@ def index():
     week_id = request.args.get('week', type=int)
     country_filter = request.args.get('country', '').strip()
     vietnam_only = request.args.get('vn') == '1'
+    page = request.args.get('page', 1, type=int)
 
     weeks = RankingWeek.query.order_by(RankingWeek.week_date.desc()).all()
 
@@ -30,6 +33,7 @@ def index():
     else:
         selected_week = RankingWeek.query.order_by(RankingWeek.week_date.desc()).first()
 
+    pagination = None
     entries = []
     countries = []
     if selected_week:
@@ -51,7 +55,9 @@ def index():
                 )
             )
 
-        entries = q.order_by(RankingEntry.rank).all()
+        q = q.order_by(RankingEntry.rank)
+        pagination = q.paginate(page=page, per_page=PER_PAGE, error_out=False)
+        entries = pagination.items
 
         countries = db.session.query(
             RankingEntry.country, RankingEntry.country_code
@@ -64,6 +70,7 @@ def index():
         weeks=weeks,
         selected_week=selected_week,
         entries=entries,
+        pagination=pagination,
         category=category,
         categories=CATEGORIES,
         countries=countries,
