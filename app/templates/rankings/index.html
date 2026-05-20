@@ -164,7 +164,7 @@
     </div>
 
     {% if pagination and pagination.pages > 1 %}
-    {% set base = '?cat=' ~ category ~ ('&week=' ~ selected_week.id if selected_week) ~ ('&vn=1' if vietnam_only elif '&country=' ~ country_filter if country_filter) %}
+    {% set base = '?cat=' ~ category ~ ('&week=' ~ selected_week.id if selected_week else '') ~ ('&vn=1' if vietnam_only else ('&country=' ~ country_filter if country_filter else '')) %}
     <div class="flex items-center justify-center gap-1 mt-5">
         {% if pagination.has_prev %}
         <a href="{{ base }}&page={{ pagination.prev_num }}"
