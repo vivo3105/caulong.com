@@ -23,6 +23,7 @@
                 <th class="text-center px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden sm:table-cell">Đôi Nam</th>
                 <th class="text-center px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden sm:table-cell">Đơn Nữ</th>
                 <th class="text-center px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden sm:table-cell">Đôi Nữ</th>
+                <th class="text-center px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden sm:table-cell">Đôi Nam Nữ</th>
                 <th class="text-right px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Thao Tác</th>
             </tr>
         </thead>
@@ -41,7 +42,7 @@
                         </div>
                     </div>
                 </td>
-                {% for cat in ['ms','md','ws','wd'] %}
+                {% for cat in ['ms','md','ws','wd','xd'] %}
                 <td class="px-4 py-3 text-center hidden sm:table-cell">
                     <a href="{{ url_for('admin.rankings_entries', week_id=week.id, category=cat) }}"
                        class="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-lg
