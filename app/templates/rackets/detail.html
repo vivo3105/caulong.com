@@ -25,7 +25,32 @@
     "priceCurrency": "VND",
     "price": "{{ racket.price }}",
     "availability": "https://schema.org/InStock",
-    "url": "{{ request.url }}"
+    "url": "{{ request.url }}",
+    "hasMerchantReturnPolicy": {
+      "@type": "MerchantReturnPolicy",
+      "applicableCountry": "VN",
+      "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+      "merchantReturnDays": 7,
+      "returnMethod": "https://schema.org/ReturnByMail",
+      "returnFees": "https://schema.org/FreeReturn"
+    },
+    "shippingDetails": {
+      "@type": "OfferShippingDetails",
+      "shippingRate": {
+        "@type": "MonetaryAmount",
+        "value": "0",
+        "currency": "VND"
+      },
+      "shippingDestination": {
+        "@type": "DefinedRegion",
+        "addressCountry": "VN"
+      },
+      "deliveryTime": {
+        "@type": "ShippingDeliveryTime",
+        "handlingTime": { "@type": "QuantitativeValue", "minValue": 0, "maxValue": 1, "unitCode": "DAY" },
+        "transitTime": { "@type": "QuantitativeValue", "minValue": 1, "maxValue": 3, "unitCode": "DAY" }
+      }
+    }
   },{% endif %}
   {% if racket.review_count > 0 %}"aggregateRating": {
     "@type": "AggregateRating",

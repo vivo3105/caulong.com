@@ -27,16 +27,50 @@
     <meta name="twitter:description" content="{% block twitter_description %}Khám phá và so sánh vợt cầu lông chính hãng tại CầuLông.com{% endblock %}">
     <meta name="twitter:image" content="{% block twitter_image %}{{ request.host_url }}static/img/og-default.png{% endblock %}">
     {% endblock %}
-    <!-- Organization JSON-LD -->
+    <!-- WebSite + Organization JSON-LD (all pages) -->
     {% block jsonld %}
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "CầuLông.com",
+      "url": "{{ request.host_url.rstrip('/') }}",
+      "description": "Review & hướng dẫn chọn vợt, phụ kiện cầu lông Yonex, Lining, Victor. Tìm vợt cầu lông, tin tức, bảng xếp hạng BWF.",
+      "inLanguage": "vi",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "{{ request.host_url.rstrip('/') }}/search?q={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "Organization",
       "name": "CầuLông.com",
-      "url": "{{ request.host_url }}",
-      "description": "Trang web chuyên đánh giá, so sánh và tư vấn vợt cầu lông chính hãng tại Việt Nam.",
-      "inLanguage": "vi"
+      "url": "{{ request.host_url.rstrip('/') }}",
+      "logo": "{{ request.host_url.rstrip('/') }}/static/img/og-default.png",
+      "description": "Trang web chuyên đánh giá, so sánh và tư vấn vợt cầu lông chính hãng Yonex, Victor, Li-Ning, Mizuno tại Việt Nam.",
+      "inLanguage": "vi",
+      "sameAs": []
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "name": "Điều hướng chính",
+      "itemListElement": [
+        { "@type": "SiteLinksSearchBox", "url": "{{ request.host_url.rstrip('/') }}", "potentialAction": { "@type": "SearchAction", "target": "{{ request.host_url.rstrip('/') }}/search?q={search_term_string}", "query-input": "required name=search_term_string" } },
+        { "@type": "ListItem", "position": 1, "name": "Bảng Xếp Hạng BWF", "url": "{{ request.host_url.rstrip('/') }}/bang-xep-hang" },
+        { "@type": "ListItem", "position": 2, "name": "Tìm Vợt Cầu Lông", "url": "{{ request.host_url.rstrip('/') }}/vot-cau-long" },
+        { "@type": "ListItem", "position": 3, "name": "Tin Tức", "url": "{{ request.host_url.rstrip('/') }}/tin-tuc" },
+        { "@type": "ListItem", "position": 4, "name": "So Sánh Vợt", "url": "{{ request.host_url.rstrip('/') }}/so-sanh" }
+      ]
     }
     </script>
     {% endblock %}

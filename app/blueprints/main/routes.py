@@ -1,6 +1,6 @@
 from flask import render_template, request, jsonify, Response, current_app, send_from_directory
 from app.blueprints.main import main_bp
-from app.models import Racket, Brand, BlogPost, RacketImage
+from app.models import Racket, Brand, BlogPost, RacketImage, RankingWeek
 from app.extensions import db
 from sqlalchemy import func
 from datetime import datetime
@@ -113,9 +113,15 @@ def sitemap():
 
     # Static pages
     pages.append({'loc': base_url + '/', 'lastmod': today, 'priority': '1.0', 'changefreq': 'daily'})
+    pages.append({'loc': base_url + '/bang-xep-hang', 'lastmod': today, 'priority': '0.9', 'changefreq': 'weekly'})
     pages.append({'loc': base_url + '/vot-cau-long', 'lastmod': today, 'priority': '0.9', 'changefreq': 'daily'})
     pages.append({'loc': base_url + '/thuong-hieu', 'lastmod': today, 'priority': '0.8', 'changefreq': 'weekly'})
     pages.append({'loc': base_url + '/tin-tuc', 'lastmod': today, 'priority': '0.8', 'changefreq': 'daily'})
+
+    # Rankings per category
+    ranking_cats = [('ms', 'Đơn Nam'), ('md', 'Đôi Nam'), ('ws', 'Đơn Nữ'), ('wd', 'Đôi Nữ'), ('xd', 'Đôi Nam Nữ')]
+    for cat, _ in ranking_cats:
+        pages.append({'loc': f'{base_url}/bang-xep-hang?cat={cat}', 'lastmod': today, 'priority': '0.8', 'changefreq': 'weekly'})
 
     # Rackets
     rackets = Racket.query.filter_by().order_by(Racket.updated_at.desc()).all()

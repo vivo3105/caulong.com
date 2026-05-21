@@ -1,7 +1,36 @@
 {% extends "base.html" %}
 
 {% block title %}Bảng Xếp Hạng Cầu Lông Thế Giới BWF | CầuLông.com{% endblock %}
-{% block meta_description %}Bảng xếp hạng cầu lông thế giới BWF mới nhất: Đơn Nam, Đôi Nam, Đơn Nữ, Đôi Nữ. Lọc theo quốc gia, xem lịch sử theo tuần.{% endblock %}
+{% block meta_description %}Bảng xếp hạng cầu lông thế giới BWF mới nhất: Đơn Nam, Đôi Nam, Đơn Nữ, Đôi Nữ, Đôi Nam Nữ. Lọc theo quốc gia, xem lịch sử theo tuần.{% endblock %}
+{% block og_title %}Bảng Xếp Hạng Cầu Lông Thế Giới BWF | CầuLông.com{% endblock %}
+{% block og_description %}Xếp hạng BWF cập nhật hàng tuần: Đơn Nam, Đôi Nam, Đơn Nữ, Đôi Nữ, Đôi Nam Nữ. Lọc theo quốc gia và xem lịch sử theo tuần.{% endblock %}
+{% block twitter_title %}Bảng Xếp Hạng Cầu Lông Thế Giới BWF | CầuLông.com{% endblock %}
+{% block twitter_description %}Xếp hạng BWF cập nhật hàng tuần tại CầuLông.com{% endblock %}
+
+{% block jsonld %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Bảng Xếp Hạng Cầu Lông Thế Giới BWF",
+  "description": "Bảng xếp hạng cầu lông thế giới BWF mới nhất: Đơn Nam, Đôi Nam, Đơn Nữ, Đôi Nữ, Đôi Nam Nữ.",
+  "url": "{{ request.host_url }}bang-xep-hang",
+  "inLanguage": "vi",
+  "publisher": {
+    "@type": "Organization",
+    "name": "CầuLông.com",
+    "url": "{{ request.host_url }}"
+  },
+  "breadcrumb": {
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Trang Chủ", "item": "{{ request.host_url }}" },
+      { "@type": "ListItem", "position": 2, "name": "Bảng Xếp Hạng", "item": "{{ request.host_url }}bang-xep-hang" }
+    ]
+  }
+}
+</script>
+{% endblock %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
