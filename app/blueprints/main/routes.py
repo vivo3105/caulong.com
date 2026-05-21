@@ -108,7 +108,7 @@ def compare():
 @main_bp.route('/sitemap.xml')
 def sitemap():
     pages = []
-    base_url = request.host_url.rstrip('/')
+    base_url = request.host_url.rstrip('/').replace('http://', 'https://')
     today = datetime.utcnow().strftime('%Y-%m-%d')
 
     # Static pages
